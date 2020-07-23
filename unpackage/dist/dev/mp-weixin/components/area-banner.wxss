@@ -1,0 +1,34 @@
+@charset "UTF-8";
+/* 颜色变量 */
+.tips-box {
+  width: 682rpx;
+  height: 50rpx;
+  background: white;
+  box-shadow: 0px 6rpx 4rpx 0px rgba(46, 46, 46, 0.13);
+  border-radius: 6rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  font-size: 20rpx;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  margin: 0 auto;
+}
+.tips-box .text {
+  font-size: 24rpx;
+  font-weight: bolder;
+  font-style: italic;
+  background: -webkit-linear-gradient(left, #fa6255 0%, #fcb7b0 100%);
+  background: linear-gradient(90deg, #fa6255 0%, #fcb7b0 100%);
+  -webkit-background-clip: text;
+  color: transparent;
+  width: 140rpx;
+  text-align: center;
+}
+.tips-box .iconfont {
+  font-size: 34rpx;
+  color: #FA8E86;
+  margin: 0 10rpx;
+}
+

@@ -1,0 +1,227 @@
+@charset "UTF-8";
+/* 颜色变量 */
+.scroll-h {
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+          flex-direction: row;
+  white-space: nowrap;
+}
+.uni-tab-item {
+  display: inline-block;
+  -webkit-flex-wrap: nowrap;
+          flex-wrap: nowrap;
+}
+.uni-tab-item-title {
+  -webkit-flex-wrap: nowrap;
+          flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.scroll-area {
+  width: calc(100% - 68rpx);
+  height: 160rpx;
+  margin: 34rpx auto;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+          flex-direction: row;
+  white-space: nowrap;
+}
+.type-list {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  margin: 20rpx auto;
+  margin-bottom: 40rpx;
+}
+.type-list .left {
+  width: 100%;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  font-size: 26rpx;
+  position: relative;
+  z-index: 2;
+}
+.type-list .left .cate-box {
+  width: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  overflow: auto hidden;
+}
+.type-list .left .type-li {
+  height: 40rpx;
+  line-height: 40rpx;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  position: relative;
+  overflow-y: hidden;
+  display: inline-block;
+  text-align: center;
+  margin-right: 40rpx;
+}
+.type-list .left .active {
+  font-size: 30rpx;
+  font-weight: bold;
+}
+.type-list .left .active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  width: 80%;
+  height: 12rpx;
+  background: #ffa098;
+  border-radius: 6rpx;
+  z-index: -1;
+}
+.goods {
+  width: calc(100% - 68rpx);
+  height: auto;
+  margin: 20rpx auto;
+}
+.search-btn {
+  border: 1px solid #157658;
+  border-radius: 18px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #157658;
+  text-align: center;
+  width: 100rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  background: #ffa098;
+  color: white;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  -webkit-box-flex: 0;
+  -webkit-flex-grow: 0;
+          flex-grow: 0;
+}
+.search-box {
+  width: calc(100% - 68rpx);
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  margin: 24rpx auto;
+}
+.search-box .left {
+  width: 400rpx;
+  height: 64rpx;
+  background: white;
+  border-radius: 32rpx;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  padding: 0 70rpx;
+  overflow: hidden;
+  color: #959595;
+  font-size: 24rpx;
+}
+.search-box .left .iconfont {
+  font-size: 30rpx;
+}
+.search-box .left .serarch {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+          flex-grow: 1;
+  height: 64rpx;
+  font-size: 24rpx;
+  margin-left: 20rpx;
+}
+.search-box .iconshouye-xiaoxi {
+  font-size: 36rpx;
+  color: #959595;
+  position: relative;
+}
+.search-box .iconshouye-xiaoxi .dot {
+  width: 14rpx;
+  height: 14rpx;
+  background: #ffa098;
+  border-radius: 100%;
+  position: absolute;
+  top: -4rpx;
+  right: -6rpx;
+  z-index: 1;
+}
+.goods-box {
+  width: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
+}
+.goods-box .goods-li {
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  width: 332rpx;
+  background: white;
+  border-radius: 8rpx;
+  overflow: hidden;
+  margin-bottom: 34rpx;
+}
+.goods-box .goods-li .img {
+  width: 332rpx;
+  height: 440rpx;
+  background: white;
+}
+.width106 {
+  height: auto;
+  font-size: 20rpx;
+  margin-right: 10rpx;
+  padding: 6rpx 14rpx;
+}
+.title-box {
+  width: calc(100% - 40rpx);
+  padding: 20rpx 20rpx;
+  padding-top: 0;
+}
+.title-box .tips-box {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+}
+.title-box .title {
+  font-size: 30rpx;
+  margin: 5rpx 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.title-box .price-box {
+  width: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+}
+.title-box .price-box .num {
+  font-size: 32rpx;
+  color: #ffa098;
+}
+.title-box .price-box .people-num {
+  font-size: 20rpx;
+  margin-left: 40rpx;
+}
+

@@ -1,0 +1,67 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index",
+			"style": {
+				"navigationBarTitleText": "嗨省商城"
+			}
+		}
+	],
+	"subPackages": [
+		{
+			"root": "pages/spread/",
+			"pages":[
+				{
+					"path": "advertise",
+					"style": {
+						"navigationBarTitleText": "生成广告"
+					}
+				},
+				{
+					"path": "advertise_make",
+					"style": {
+						"navigationBarTitleText": "生成广告"
+					}
+				}
+			]
+		},
+		
+		{
+			"root": "pages/login/",
+			"pages": [
+				{
+					"path": "login",
+					"style": {
+						"navigationStyle": "custom"
+					}
+				},
+				{
+					"path": "register",
+					"style": {
+						"navigationBarTitleText": "注册"
+					}
+				}
+
+			]
+		}
+
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "嗨省电商",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+
+	"condition": { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式（list 的索引项）
+		"list": [
+			{
+				"name": "index",
+				"path": "pages/index", //启动页面，必选
+				"query": "merchantSeqId=989f864cff9c42c6bb0438da20553050"
+			}
+
+		]
+	}
+}

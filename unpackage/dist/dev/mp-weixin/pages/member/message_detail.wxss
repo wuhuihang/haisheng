@@ -1,0 +1,26 @@
+@charset "UTF-8";
+/* 颜色变量 */
+.box {
+  width: 100%;
+  min-height: calc(100vh - 0px);
+  background: #fff;
+}
+.box .message {
+  padding: 50rpx;
+}
+.box .message .title {
+  width: 100%;
+  font-size: 36rpx;
+}
+.box .message .time {
+  width: 100%;
+  border-bottom: 1px solid #eee;
+  font-size: 20rpx;
+  line-height: 80rpx;
+  color: #777;
+}
+.box .message .content {
+  font-size: 28rpx;
+  margin-top: 50rpx;
+}
+

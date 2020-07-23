@@ -1,0 +1,1 @@
+<view class="good-classified"><view class="type-list"><block wx:for="{{titleList}}" wx:for-item="item" wx:for-index="k" wx:key="k"><view data-event-opts="{{[['tap',[['checkTitle',[k]]]]]}}" class="{{['type-li',(item.id==curTitle)?'active':'']}}" bindtap="__e">{{''+item.title+''}}</view></block></view></view>

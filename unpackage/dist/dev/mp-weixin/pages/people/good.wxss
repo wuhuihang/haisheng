@@ -1,0 +1,208 @@
+@charset "UTF-8";
+/* 颜色变量 */
+.shop-comein {
+  width: 642rpx;
+  background: white;
+  border-radius: 10rpx;
+  margin: 40rpx auto;
+  padding: 30rpx 20rpx;
+  font-size: 24rpx;
+}
+.shop-comein .title {
+  font-size: 30rpx;
+}
+.shop-comein .shop-money {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+}
+.shop-comein .shop-money .money-box {
+  width: 50%;
+  height: 140rpx;
+  text-align: center;
+  position: relative;
+}
+.shop-comein .shop-money .money-box .text {
+  width: 100%;
+  line-height: 90rpx;
+  font-size: 36rpx;
+  color: #FF6430;
+}
+.shop-comein .shop-money .money-box:first-child::after {
+  position: absolute;
+  width: 1px;
+  height: 44rpx;
+  content: "";
+  background: #C6C6C6;
+  top: 50%;
+  margin-top: -22rpx;
+  right: 0;
+  z-index: 1;
+}
+.goods-box {
+  background: white;
+}
+.goods-box .goods-li {
+  width: calc(100% - 60rpx);
+  padding: 40rpx 0;
+  margin: 0 auto;
+  height: auto;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  overflow: hidden;
+}
+.goods-box .goods-li .img {
+  width: 200rpx;
+  height: 200rpx;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  margin-right: 20rpx;
+  background: #e5e5e5;
+  border-radius: 8rpx;
+}
+.goods-box .goods-li .right {
+  width: calc(100% - 220rpx);
+  font-size: 30rpx;
+}
+.goods-box .goods-li .right .title {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.goods-box .goods-li .right .money-box {
+  width: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  color: #666;
+  font-size: 20rpx;
+  margin: 30rpx 0;
+}
+.goods-box .goods-li .right .money-box .price {
+  font-size: 30rpx;
+  color: #f53a00;
+}
+.goods-box .goods-li .right .money-box .status {
+  color: #9a9a9a;
+  font-size: 24rpx;
+}
+.goods-box .goods-li .right .yongjin-btn {
+  width: 130rpx;
+  height: 48rpx;
+  line-height: 48rpx;
+  text-align: center;
+  border: 1px solid #a46aff;
+  border-radius: 24rpx;
+  font-size: 26rpx;
+  color: #a46aff;
+  margin: 10rpx 0;
+}
+.goods-box .goods-li .right .set-box {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: end;
+  -webkit-justify-content: flex-end;
+          justify-content: flex-end;
+}
+.goods-box .goods-li .right .set-box .btn {
+  margin-right: 20rpx;
+}
+.bg-red {
+  background: #f6591e;
+  color: white;
+}
+.bg-orange {
+  background: #feba02;
+  color: white;
+}
+.good-shop {
+  background: white;
+  width: calc(100% - 60rpx);
+  padding: 40rpx 30rpx;
+  margin-bottom: 30rpx;
+}
+.good-shop .top {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+}
+.good-shop .top .iconfont {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 100%;
+  background: #ffa098;
+  color: white;
+  text-align: center;
+  line-height: 100rpx;
+  font-size: 40rpx;
+  margin-right: 26rpx;
+}
+.good-shop .top .shop-name {
+  font-size: 30rpx;
+}
+.good-shop .top .shop-name .id {
+  color: #93979f;
+  font-size: 24rpx;
+  margin-top: 10rpx;
+}
+.good-shop .bottom {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  margin-top: 40rpx;
+}
+.good-shop .bottom .money {
+  font-size: 20rpx;
+}
+.good-shop .bottom .right-bottom {
+  width: 310rpx;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+}
+.btn {
+  width: 140rpx;
+  height: 60rpx;
+  text-align: center;
+  line-height: 60rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+}
+.bg-primary {
+  background: #ffa098;
+  color: white;
+}
+.border-primary {
+  border: 1px solid #ffa098;
+  color: #ffa098;
+}
+

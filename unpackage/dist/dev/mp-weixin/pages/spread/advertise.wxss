@@ -1,0 +1,215 @@
+@charset "UTF-8";
+/* 颜色变量 */
+.url-box {
+  width: 682rpx;
+  height: auto;
+  margin: 20rpx auto;
+  margin-bottom: 10rpx;
+  color: #999;
+  padding: 20rpx 30rpx;
+  width: 622rpx;
+  height: 80rpx;
+  background: white;
+  box-shadow: 0px 0px 5rpx 2rpx rgba(72, 114, 229, 0.31);
+  border-radius: 6rpx;
+  position: relative;
+}
+.url-box .article-url {
+  width: 100%;
+  font-size: 20rpx;
+  height: 60rpx;
+}
+.url-box .article-url-tips {
+  position: absolute;
+  bottom: 5rpx;
+  right: 30rpx;
+  font-size: 16rpx;
+  color: #4872E5;
+}
+.platfrom {
+  font-size: 16rpx;
+  color: #666666;
+  width: 682rpx;
+  margin: 0 auto;
+  margin-bottom: 24rpx;
+}
+.article-btn {
+  width: 682rpx;
+  height: auto;
+  margin: 0 auto;
+  margin-bottom: 40rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+}
+.article-btn .btn {
+  background: #4872e5;
+  border-radius: 34rpx;
+  height: 68rpx;
+  line-height: 68rpx;
+  font-size: 30rpx;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+}
+.article-btn .btn-l {
+  width: 440rpx;
+}
+.article-btn .btn-r {
+  width: 188rpx;
+  opacity: 0.7;
+}
+.art-box {
+  width: 682rpx;
+  margin: 40rpx auto;
+}
+.art-box .type-list {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  font-size: 26rpx;
+  position: relative;
+  z-index: 2;
+}
+.art-box .type-list .cate-box {
+  width: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  overflow: auto hidden;
+}
+.art-box .type-list .type-li {
+  height: 40rpx;
+  line-height: 40rpx;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  position: relative;
+  overflow-y: hidden;
+  display: inline-block;
+  text-align: center;
+  margin-right: 50rpx;
+}
+.art-box .type-list .active {
+  font-size: 30rpx;
+  font-weight: bold;
+}
+.art-box .type-list .active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  width: 80%;
+  height: 12rpx;
+  background: #ffa098;
+  border-radius: 6rpx;
+  z-index: -1;
+}
+.art-box .art-li {
+  width: 622rpx;
+  background: white;
+  border-radius: 6px;
+  padding: 36rpx 30rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  overflow: hidden;
+  margin: 30rpx 0;
+}
+.art-box .art-li .img {
+  width: 200rpx;
+  height: 148rpx;
+  background: white;
+  border-radius: 4rpx;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  margin-right: 20rpx;
+  box-shadow: 0px 0px 5px 2px #d4d4d4;
+}
+.art-box .art-li .art-li-r {
+  width: calc(100% - 220rpx);
+  font-size: 26rpx;
+  height: 148rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
+}
+.art-box .art-li .art-li-r .title {
+  margin-top: -6rpx;
+  width: 100%;
+}
+.art-box .art-li .art-li-r .time-box {
+  margin: 10rpx 0;
+  margin-top: 0;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  width: 100%;
+  color: #666;
+}
+.art-box .art-li .art-li-r .insert {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  font-size: 16rpx;
+  -webkit-align-self: flex-end;
+          align-self: flex-end;
+  width: 100%;
+}
+.art-box .art-li .art-li-r .insert .insert-l {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  color: #666666;
+}
+.art-box .art-li .art-li-r .insert .insert-l .avatar {
+  width: 54rpx;
+  height: 54rpx;
+  border-radius: 100%;
+  background: #DCDCDC;
+  margin-right: 8rpx;
+}
+.art-box .art-li .art-li-r .insert .insert-r {
+  width: 156rpx;
+  height: 48rpx;
+  border: 1px solid #ff5148;
+  border-radius: 23rpx;
+  font-size: 24rpx;
+  color: #FF857D;
+  line-height: 48rpx;
+  text-align: center;
+}
+.adert-btn-img {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 154rpx;
+}
+.adert-btn-img .img {
+  width: 100%;
+  height: 100%;
+}
+

@@ -1,0 +1,45 @@
+@charset "UTF-8";
+/* 颜色变量 */
+.box {
+  width: calc(100% - 60rpx);
+  padding: 0 30rpx;
+  padding-bottom: 100rpx;
+  background: white;
+}
+.box .title {
+  font-size: 26rpx;
+  color: #535353;
+  border-bottom: 1px solid #f3f3f3;
+  height: 64rpx;
+  line-height: 64rpx;
+  width: 100%;
+}
+.box .reason {
+  height: 60rpx;
+  line-height: 60rpx;
+  color: #515151;
+  font-size: 22rpx;
+  border-bottom: 1px solid #f3f3f3;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+}
+.box .reason .check {
+  color: #ffa098;
+  font-weight: bolder;
+  font-size: 30rpx;
+  padding-right: 20rpx;
+}
+.box .complaint {
+  width: calc(100% - 40rpx);
+  height: 170rpx;
+  font-size: 22rpx;
+  margin: 40rpx auto;
+  background: #f8faf9;
+  border: 1px solid #eeeeee;
+  padding: 20rpx;
+}
+

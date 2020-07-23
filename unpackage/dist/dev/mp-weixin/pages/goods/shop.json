@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "店铺详情",
+  "usingComponents": {
+    "score": "/components/score",
+    "goods-list": "/pages/goods/components/goods-list",
+    "mescroll-body": "/components/mescroll-uni/mescroll-body",
+    "title-line": "/components/title-line"
+  }
+}

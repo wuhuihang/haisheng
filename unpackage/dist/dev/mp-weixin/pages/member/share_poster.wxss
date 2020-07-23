@@ -1,0 +1,15 @@
+@charset "UTF-8";
+/* 颜色变量 */
+.box {
+  width: 100%;
+}
+.poster {
+  width: 100%;
+  height: auto;
+}
+.bg-btn {
+  width: 80%;
+  margin: 0 auto;
+  margin-top: 30rpx;
+}
+

@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "选择投放区域",
+  "usingComponents": {
+    "w-picker": "/components/w-picker/w-picker"
+  }
+}

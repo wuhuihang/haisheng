@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "实体店",
+  "usingComponents": {
+    "score": "/components/score",
+    "mescroll-body": "/components/mescroll-uni/mescroll-body"
+  }
+}

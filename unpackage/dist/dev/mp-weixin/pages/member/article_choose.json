@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "选择文章",
+  "usingComponents": {
+    "mescroll-body": "/components/mescroll-uni/mescroll-body"
+  }
+}

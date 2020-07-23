@@ -1,0 +1,1 @@
+<view class="progress-box"><view class="progress-border"><view class="progress-bg" style="{{'width:'+(percent)+';'}}"></view></view><view class="tips">{{'已抢'+percent+''}}</view></view>

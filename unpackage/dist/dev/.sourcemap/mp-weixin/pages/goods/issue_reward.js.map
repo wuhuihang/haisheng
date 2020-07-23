@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///C:/work/haisheng_m/main.js"],"names":["createPage","Page"],"mappings":";;;;wEAAA,qBACA,sBACA,gI,mDACAA,EAAWC,a","file":"pages/goods/issue_reward.js","sourcesContent":["import 'uni-pages';\nimport Vue from 'vue'\nimport Page from './pages/goods/issue_reward.vue'\ncreatePage(Page)"],"sourceRoot":""}

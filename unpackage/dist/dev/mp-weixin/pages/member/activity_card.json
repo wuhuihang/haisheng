@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "我的卡片",
+  "usingComponents": {
+    "title-line": "/components/title-line",
+    "uni-number-box": "/pages/member/components/uni-number-box/uni-number-box"
+  }
+}

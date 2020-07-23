@@ -1,0 +1,205 @@
+@charset "UTF-8";
+/* 颜色变量 */
+.text-red {
+  color: red;
+}
+.box {
+  background: white;
+  width: 100%;
+  min-height: calc(100vh - 0px - 0px);
+  padding-bottom: 40rpx;
+}
+.tab-info {
+  width: calc(100% - 60rpx);
+  margin: 0 auto;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  height: 100rpx;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  font-size: 30rpx;
+  color: #666;
+}
+.tab-info .tab-li {
+  height: 60rpx;
+  line-height: 60rpx;
+  margin-right: 30rpx;
+  cursor: pointer;
+}
+.tab-info .active {
+  color: #333;
+  font-weight: bold;
+  font-size: 32rpx;
+  border-bottom: 1px solid #ffa098;
+}
+.next-btn {
+  width: calc(100% - 60rpx);
+  background: #ffa098;
+  font-size: 30rpx;
+  height: 90rpx;
+  line-height: 90rpx;
+  text-align: center;
+  color: white;
+  margin: 40rpx auto;
+  border-radius: 10rpx;
+}
+.info-li {
+  width: calc(100% - 60rpx);
+  padding: 0 30rpx;
+  min-height: 100rpx;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+  font-size: 28rpx;
+  border-bottom: 1px solid #eee;
+}
+.info-li .left {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  width: 220rpx;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+}
+.info-li .left .iconfont {
+  font-size: 40rpx;
+  margin-right: 10rpx;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+}
+.info-li .left .title {
+  width: 180rpx;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  font-size: 30rpx;
+}
+.info-li .info-li-input {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+          flex-grow: 1;
+  text-align: right;
+  font-size: 28rpx;
+  height: 100rpx;
+  line-height: 100rpx;
+}
+.gender-l {
+  margin-right: 18rpx;
+}
+.yzm-btn {
+  padding: 12rpx 20rpx;
+  margin-left: 10rpx;
+  width: 160rpx;
+}
+.info-photo-li {
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
+}
+.info-photo-li .card-title {
+  width: 100%;
+  height: 100rpx;
+  line-height: 100rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+}
+.photo_list {
+  width: 100%;
+  height: auto;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  margin-bottom: 40rpx;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+          justify-content: space-between;
+}
+.photo_list .photo_li {
+  width: 220rpx;
+  height: 200rpx;
+  background: #F2F2F2;
+  border-radius: 7rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
+  position: relative;
+}
+.photo_list .photo_li:last-child {
+  margin-right: 0;
+}
+.photo_list .photo_li .photo_default {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+          align-items: center;
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  cursor: pointer;
+}
+.photo_list .photo_li .default_icon {
+  width: 53rpx;
+  height: 46rpx;
+  text-align: center;
+  margin: 0 auto;
+}
+.photo_list .photo_li .default_img {
+  width: 220rpx;
+  height: 200rpx;
+}
+.photo_list .photo_li .iconcuowu {
+  position: absolute;
+  top: -16rpx;
+  right: -10rpx;
+  background: #333;
+  border-radius: 100%;
+  width: 36rpx;
+  height: 36rpx;
+  z-index: 1;
+  color: white;
+  font-size: 30rpx;
+  text-align: center;
+  line-height: 36rpx;
+}
+.photo_list .photo_li .default_text {
+  width: 100%;
+  text-align: center;
+  font-size: 24rpx;
+  margin-top: 16rpx;
+  color: #666;
+}
+.photo_list .photo_li .img {
+  width: 100%;
+  height: 100%;
+}
+.photo_list .photo_li .close_icon {
+  width: 32rpx;
+  height: 32rpx;
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  z-index: 2;
+  cursor: pointer;
+}
+

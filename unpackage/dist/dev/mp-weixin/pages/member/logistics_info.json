@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "查看物流",
+  "usingComponents": {
+    "uni-steps": "/pages/member/components/uni-steps"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "area-banner": "/components/area-banner",
+    "mescroll-body": "/components/mescroll-uni/mescroll-body"
+  }
+}

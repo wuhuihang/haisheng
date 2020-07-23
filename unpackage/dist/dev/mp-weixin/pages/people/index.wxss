@@ -1,0 +1,44 @@
+@charset "UTF-8";
+/* 颜色变量 */
+.merchants_list {
+  width: 682rpx;
+  height: 60rpx;
+  margin: 0 auto;
+  font-size: 30rpx;
+  color: #ffa098;
+  text-align: right;
+  font-weight: bold;
+}
+.box {
+  padding: 40rpx 0;
+  background: white;
+  min-height: calc(100vh - 0px - 80rpx);
+  overflow: hidden;
+}
+.haibao {
+  width: 682rpx;
+  height: 960rpx;
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 60rpx;
+}
+.bg-btn {
+  width: 682rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  padding: 0;
+  margin: 0 auto;
+  font-size: 26rpx;
+  position: relative;
+}
+.bg-btn .confirm-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: red;
+  z-index: 10;
+  opacity: 0;
+}
+

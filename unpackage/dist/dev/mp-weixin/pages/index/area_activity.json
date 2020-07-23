@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "活动专区",
+  "usingComponents": {
+    "area-icon": "/pages/index/components/area-icon",
+    "title-line": "/components/title-line",
+    "mescroll-body": "/components/mescroll-uni/mescroll-body"
+  }
+}

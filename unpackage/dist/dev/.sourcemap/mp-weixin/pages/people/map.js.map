@@ -1,0 +1,1 @@
+{"version":3,"sources":["uni-app:///main.js"],"names":["createPage","Page"],"mappings":";;;;wEAAA,qBACA,sBACA,yC,mDACAA,EAAWC,a","file":"pages/people/map.js","sourcesContent":["import 'uni-pages';\nimport Vue from 'vue'\nimport Page from './pages/people/map.vue'\ncreatePage(Page)"],"sourceRoot":""}

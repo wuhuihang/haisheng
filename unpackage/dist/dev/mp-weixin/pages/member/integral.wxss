@@ -1,0 +1,70 @@
+@charset "UTF-8";
+/* 颜色变量 */
+.visi-hidden {
+  visibility: hidden;
+}
+.withdraw-url {
+  font-size: 26rpx;
+  color: #666666;
+  width: calc(100% - 68rpx);
+  text-align: right;
+  margin: 0 auto;
+  padding: 20rpx 0;
+}
+.withdraw-url .iconfont {
+  margin-right: 4rpx;
+  color: #FF9E97;
+}
+.box {
+  width: 100%;
+  min-height: calc(100vh - 0px);
+  background: white;
+}
+.box .money-box {
+  padding: 0 34rpx;
+  width: calc(100% - 68rpx);
+  margin: 0 auto;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+}
+.box .money-box .money-li {
+  width: 49%;
+  height: 210rpx;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-content: center;
+          align-content: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+          justify-content: center;
+  -webkit-flex-wrap: wrap;
+          flex-wrap: wrap;
+  -webkit-flex-shrink: 0;
+          flex-shrink: 0;
+  font-size: 26rpx;
+  border-bottom: 1px solid rgba(238, 238, 238, 0.8);
+}
+.box .money-box .money-li .money {
+  color: #F6591E;
+  font-size: 30rpx;
+}
+.box .money-box .money-li .text {
+  font-size: 26rpx;
+  line-height: 2.4;
+}
+.box .money-box .money-li .bg-btn {
+  background: #ffedec;
+  width: auto;
+  color: #F9867E;
+  padding: 10rpx 30rpx;
+}
+.box .money-box .money-li .width100 {
+  width: 100%;
+  text-align: center;
+}
+.box .money-box .money-li:first-child {
+  border-right: 1px solid rgba(238, 238, 238, 0.8);
+}
+

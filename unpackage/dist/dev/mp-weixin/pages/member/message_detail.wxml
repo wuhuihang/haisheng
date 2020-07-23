@@ -1,0 +1,1 @@
+<view class="box"><block wx:if="{{detail.title}}"><view class="message"><view class="title">{{detail.title}}</view><view class="time">{{''+detail.createDate+''}}</view><view class="content">{{detail.content}}</view></view></block></view>

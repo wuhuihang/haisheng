@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///C:/work/haisheng_m/main.js"],"names":["createPage","Page"],"mappings":";;;;wEAAA,qBACA,sBACA,iI,mDACAA,EAAWC,a","file":"pages/goods/crowd_funding.js","sourcesContent":["import 'uni-pages';\nimport Vue from 'vue'\nimport Page from './pages/goods/crowd_funding.vue'\ncreatePage(Page)"],"sourceRoot":""}

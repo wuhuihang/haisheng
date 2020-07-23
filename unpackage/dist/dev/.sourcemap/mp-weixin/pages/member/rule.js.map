@@ -1,0 +1,1 @@
+{"version":3,"sources":["uni-app:///main.js"],"names":["createPage","Page"],"mappings":";;;;wEAAA,qBACA,sBACA,0C,mDACAA,EAAWC,a","file":"pages/member/rule.js","sourcesContent":["import 'uni-pages';\nimport Vue from 'vue'\nimport Page from './pages/member/rule.vue'\ncreatePage(Page)"],"sourceRoot":""}

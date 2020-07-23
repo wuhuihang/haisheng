@@ -1,0 +1,1 @@
+<view class="{{['progress-box',(size=='small')?'size_small':'',(size=='large')?'size_large':'']}}"><view class="progress-border"><view class="progress-bg" style="{{'width:'+(percent)+';'}}"></view></view><view class="tips">{{''+percent+''}}</view></view>

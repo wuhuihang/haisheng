@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "记录",
+  "usingComponents": {
+    "mescroll-empty": "/components/mescroll-uni/components/mescroll-empty"
+  }
+}

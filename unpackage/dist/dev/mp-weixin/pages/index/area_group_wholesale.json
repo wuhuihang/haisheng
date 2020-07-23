@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "团批专区",
+  "usingComponents": {
+    "area-icon": "/pages/index/components/area-icon",
+    "mescroll-body": "/components/mescroll-uni/mescroll-body"
+  }
+}

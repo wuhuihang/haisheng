@@ -1,0 +1,1 @@
+const box={toast(title,icon){return uni.showToast({title:title,mask:false,duration:1500,icon:icon||'success'})},confirm(text,cancel=true){return uni.showModal({title:'温馨提示',content:text,showCancel:cancel})}};export{box}
