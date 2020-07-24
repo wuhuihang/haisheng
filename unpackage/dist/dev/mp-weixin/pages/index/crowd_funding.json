@@ -1,8 +1,0 @@
-{
-  "navigationBarTitleText": "众筹专区",
-  "usingComponents": {
-    "area-banner": "/components/area-banner",
-    "progress-bar2": "/components/progress-bar2",
-    "mescroll-body": "/components/mescroll-uni/mescroll-body"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "navigationBarTitleText": "我的订单",
-  "usingComponents": {
-    "slide-tab": "/components/slide-tab/slide-tab",
-    "order-goods": "/pages/member/components/order-goods",
-    "mescroll-body": "/components/mescroll-uni/mescroll-body"
-  }
-}

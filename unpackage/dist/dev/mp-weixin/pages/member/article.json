@@ -1,7 +1,0 @@
-{
-  "navigationBarTitleText": "我的文章",
-  "usingComponents": {
-    "slide-tab": "/components/slide-tab/slide-tab",
-    "mescroll-body": "/components/mescroll-uni/mescroll-body"
-  }
-}

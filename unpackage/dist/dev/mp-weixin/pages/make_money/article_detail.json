@@ -1,7 +1,0 @@
-{
-  "navigationBarTitleText": "文章详情",
-  "usingComponents": {
-    "jyf-parser": "/components/jyf-parser/jyf-parser",
-    "wm-poster": "/components/wm-poster/wm-poster"
-  }
-}

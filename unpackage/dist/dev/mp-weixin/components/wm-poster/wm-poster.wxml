@@ -1,1 +1,0 @@
-<view><block wx:if="{{!tempFilePath}}"><canvas style="{{'width:'+(canvasW+'px')+';'+('height:'+(canvasH+'px')+';')}}" canvas-id="{{CanvasID}}"></canvas></block><block wx:else><image class="is-response" lazy-load="{{true}}" src="{{tempFilePath}}" mode="widthFix" data-event-opts="{{[['longpress',[['toSave',['$0'],['tempFilePath']]]]]}}" bindlongpress="__e"></image></block></view>

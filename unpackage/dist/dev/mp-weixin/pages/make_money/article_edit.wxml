@@ -1,1 +1,0 @@
-<view class="box"><block wx:if="{{url.length>0}}"><web-view src="{{url}}" webview-styles="{{webviewStyles}}"></web-view></block></view>

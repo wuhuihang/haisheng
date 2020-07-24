@@ -1,7 +1,0 @@
-{
-  "navigationBarTitleText": "身份管理",
-  "usingComponents": {
-    "title-line": "/components/title-line",
-    "mescroll-body": "/components/mescroll-uni/mescroll-body"
-  }
-}

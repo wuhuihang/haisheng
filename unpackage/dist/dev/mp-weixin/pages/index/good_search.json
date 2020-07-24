@@ -1,9 +1,0 @@
-{
-  "navigationBarTitleText": "搜索",
-  "usingComponents": {
-    "uni-search-bar": "/components/uni-search-bar/uni-search-bar",
-    "title-line": "/components/title-line",
-    "score": "/components/score",
-    "mescroll-body": "/components/mescroll-uni/mescroll-body"
-  }
-}

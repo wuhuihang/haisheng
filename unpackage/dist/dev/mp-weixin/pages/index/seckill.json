@@ -1,6 +1,0 @@
-{
-  "navigationBarTitleText": "限时秒杀",
-  "usingComponents": {
-    "progress-bar": "/components/progress-bar"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "navigationBarTitleText": "产品详情",
-  "usingComponents": {
-    "jyf-parser": "/components/jyf-parser/jyf-parser",
-    "score": "/components/score",
-    "add-cart": "/pages/goods/components/add-cart"
-  }
-}
