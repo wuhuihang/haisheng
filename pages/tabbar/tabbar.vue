@@ -288,7 +288,7 @@
 				</view>
 			</view>
 			<view class="bottom">
-				<view class="weirao" @tap="iconTap('/pages/member/article')">
+				<view class="weirao" @tap="iconTap('/pages/write/write')">
 					<view class="iconfont iconwodewenzhang "></view>
 					<view class="text">我的文章</view>
 				</view>
@@ -393,7 +393,7 @@
 				return tempMoble
 			},
 			getCheck() {
-				this.$api.get('/O2oMenuConfig/selectO2oMenu').then(res => {
+				this.$api.get('https://mall.yyooyi.com:8081/O2oMenuConfig/selectO2oMenu').then(res => {
 					if (res.code == 200) {
 						let type_check = res.data.menu == 1 ? true : false;
 						this.$store.commit('saveTypecheck', type_check)

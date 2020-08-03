@@ -96,7 +96,7 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "wxc51da278a32aba46",
+        "appid" : "wx2ee52024f02d1412",
         "setting" : {
             "urlCheck" : false,
             "es6" : true,
@@ -122,5 +122,10 @@
     },
     "uniStatistics" : {
         "enable" : false
+    },
+    "h5" : {
+        "router" : {
+            "mode" : "history"
+        }
     }
 }

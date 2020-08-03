@@ -80,7 +80,7 @@
 					return;
 				}
 
-				this.$api.get('/login/getLoginByPassWord', {
+				this.$api.get('https://mall.yyooyi.com:8081/login/getLoginByPassWord', {
 					params: {
 						mobile: this.mobile,
 						passWord: this.passWord

@@ -1,12 +1,25 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages	
+		
 		{
 			"path": "pages/index",
 			"style": {
 				"navigationBarTitleText": "嗨省商城"
 			}
+		},
+		{
+		    "path" : "pages/write/write",
+			"style": {
+				"navigationBarTitleText": "原创文章"
+			}
 		}
-	],
+        ,{
+            "path" : "pages/write/article",
+            "style" : {
+				"navigationBarTitleText": "文章详情"
+			}
+        }
+    ],
 	"subPackages": [
 		{
 			"root": "pages/spread/",
@@ -56,6 +69,11 @@
 	"condition": { //模式配置，仅开发期间生效
 		"current": 0, //当前激活的模式（list 的索引项）
 		"list": [
+			{
+				"name": "index2",
+				"path": "pages/write/write", //启动页面，必选
+				"query": "merchantSeqId=989f864cff9c42c6bb0438da20553050"
+			},
 			{
 				"name": "index",
 				"path": "pages/index", //启动页面，必选

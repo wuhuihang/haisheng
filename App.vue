@@ -1,6 +1,9 @@
 <script>
 	import Vue from 'vue'
 	export default {
+        globalData: {  
+            content: ''  
+        },
 		onLaunch: function() {
 			console.log('onLaunch');
 			// 下一次进入前先清除分享邀请码
