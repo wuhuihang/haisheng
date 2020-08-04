@@ -185,7 +185,8 @@
 						:style="{
 							'font-weight':fontWeight,
 							'color':fontColor,
-							'font-size':fontSize
+							'font-size':fontSize,
+							'text-align':textAlign
 						}" 
 						:placeholder="modalPlaceHolder" 
 						placeholder-class="model-placeholder"
@@ -211,6 +212,14 @@
 							@click="changeSize(size)"
 						>{{size}}</view>
 					</view>
+					<view class="model-size" v-if="showModelStyleType==='align'">
+						<view
+							v-for="(align,index) in textAlignList"
+							:key="index"
+							:class="{'active':textAlign===align}"
+							@click="changeAlign(align)"
+						>{{align}}</view>
+					</view>
 				</view>
 				<view class="model-bottom" v-if="modalType==='插入段落'||modalType==='修改文字'">
 					<view class="model-bottom-item" @click="bold">
@@ -221,6 +230,9 @@
 					</view>
 					<view class="model-bottom-item" @click="modelStyle('size')">
 						<image src="/static/images/write/size.png" mode="heightFix"></image><view>大小</view>
+					</view>
+					<view class="model-bottom-item" @click="modelStyle('align')">
+						<image src="/static/images/write/size.png" mode="heightFix"></image><view>对齐</view>
 					</view>
 					<view class="model-bottom-item" @click="modalValue=''">
 						<image src="/static/images/write/remove.png" mode="heightFix"></image><view>清空</view>
@@ -270,6 +282,8 @@
 				fontWeight: 'normal',
 				fontColor: '#000',
 				fontSize: '14px',
+				textAlign: 'left',
+				textAlignList: ['left','center','right'],
 				fontSizeList: ['12px','14px','18px','20px','24px','28px'],
 				fontColorList: ['#ea3323','#5c8ef1','#3d752e','#ee712f','#f09d37','#000','#88328d','#1c19c2','#fefb62','#a27c4f'],
 				showModelStyle: false,
@@ -277,7 +291,7 @@
 				active: -1,
 				contentType: '', // 当前选中内容的类型
 				content: [
-					'<div class="hs-text" style="color:#000;font-weight:normal;font-size:14px;">点击开始编辑文章内容</div>',
+					'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>',
 				],
 				customerSeqId:this.$common.getLocalSync('customerSeqId')
 			}
@@ -305,7 +319,7 @@
 						let content = [];
 						if(articleContent.startsWith('<section>')){ // 内部文章
 							let content = articleContent.replace(/^<section>/g,'').replace(/<\/section>$/g,'') ||
-								'<div class="hs-text" style="color:#000;font-weight:normal;font-size:14px;">点击开始编辑文章内容</div>';
+								'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>';
 							content = content.split(/<\/section><section>/);
 						} else { // 外部文章
 							const reg = /<([a-z]+?)(\s[\s\S]*?(style="[^"]*?")?(src="[^"]*?")?[\s\S]*?)?>(([\s\S]*?)<\/\1>)?/g; 
@@ -412,11 +426,13 @@
 						const color = curContent.match(/[^-]color:([^;]+);/);
 						const weight = curContent.match(/font-weight:([^;]+);/);
 						const size = curContent.match(/font-size:([^;]+);/);
+						const align = curContent.match(/text-align:([^;]+);/);
 						this.hasHref = arrs[2]?arrs[2]:'';
 						this.modalValue = curContent.replace(/^(<a href=".*">)?<div class="hs-text".+?>/g,"").replace(/<\/div>(<\/a>)?$/g,"").replace(/<br\/>/g,'\n'); // 去掉首尾div标签
 						this.fontColor = color?color[1]:'#000';
 						this.fontWeight = weight?weight[1]:'normal';
 						this.fontSize = size?size[1]:'14px';
+						this.textAlign = align?align[1]:'left';
 					}],
 					[/.*/, ()=>{ // 展示弹框
 						this.showModal = true;
@@ -441,7 +457,7 @@
 					}],
 					[/插入段落|修改文字/, ()=>{ // 0为插入段落，1为修改文字
 						const type = this.modalType === '插入段落' ? 0 : 1;
-						let content = `<div class="hs-text" style="color:${this.fontColor};font-weight:${this.fontWeight};font-size:${this.fontSize};">${this.modalValue.replace(/\n/g,'<br/>')}</div>`;
+						let content = `<div class="hs-text" style="color:${this.fontColor};font-weight:${this.fontWeight};text-align:${this.textAlign};font-size:${this.fontSize};">${this.modalValue.replace(/\n/g,'<br/>')}</div>`;
 						if(this.hasHref){
 							content = `<a href="${this.hasHref}" onclick="return false;">${content}</a>`;
 						}
@@ -467,6 +483,10 @@
 			// 修改字体大小
 			changeSize(size) {
 				this.fontSize = size;
+			},
+			// 修改字体大小
+			changeAlign(align) {
+				this.textAlign = align;
 			},
 			// 修改字体颜色
 			changeColor(color) {
