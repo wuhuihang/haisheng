@@ -21,7 +21,7 @@
 		name: 'mains',
 		data() {
 			return {
-				active: Number || 0,
+				active: 0,
 				flagTypeInfo: false, // 检测当前是否是IPHONE 异形屏幕
 			}
 		},

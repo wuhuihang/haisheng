@@ -240,6 +240,7 @@
 	export default {
 		data() {
 			return {
+				api:this.$webconfig.api_url,
 				showEdit: false,
 				showGoodList: false,
 				showAdList: false,
@@ -277,7 +278,8 @@
 				contentType: '', // 当前选中内容的类型
 				content: [
 					'<div class="hs-text" style="color:#000;font-weight:normal;font-size:14px;">点击开始编辑文章内容</div>',
-				]
+				],
+				customerSeqId:this.$common.getLocalSync('customerSeqId')
 			}
 		},
 		watch: {
@@ -288,20 +290,47 @@
 		},
 		onLoad(option){
 			const curTime = new Date();	
-			this.changeTime = `${curTime.getFullYear()}-${('0'+(curTime.getMonth()+1)).slice(-2)}-${('0'+(curTime.getDate()+1)).slice(-2)}`;
+			this.changeTime = `${curTime.getFullYear()}-${('0'+(curTime.getMonth()+1)).slice(-2)}-${('0'+(curTime.getDate())).slice(-2)}`;
 			
 			// 判断是否是修改页面
 			if(option.isModify){	   
 				// 获取文章详情
-				this.$api.get('https://mall.yyooyi.com:8081/o2oMyArticle/getArticleInfo', {
+				this.$api.get('/o2oMyArticle/getArticleInfo', {
 					params: {
 						seqId: option.seqId
 					}
 			    }).then(res => {
-					if(res.code===200){	
-						let content = (res.data.articleContent||'').replace(/^<section>/g,'').replace(/<\/section>$/g,'') ||
-							'<div class="hs-text" style="color:#000;font-weight:normal;font-size:14px;">点击开始编辑文章内容</div>';
-						content = content.split(/<\/section><section>/);
+					if(res.code===200){
+						let articleContent = res.data.articleContent||'';
+						let content = [];
+						if(articleContent.startsWith('<section>')){ // 内部文章
+							let content = articleContent.replace(/^<section>/g,'').replace(/<\/section>$/g,'') ||
+								'<div class="hs-text" style="color:#000;font-weight:normal;font-size:14px;">点击开始编辑文章内容</div>';
+							content = content.split(/<\/section><section>/);
+						} else { // 外部文章
+							const reg = /<([a-z]+?)(\s[\s\S]*?(style="[^"]*?")?(src="[^"]*?")?[\s\S]*?)?>(([\s\S]*?)<\/\1>)?/g; 
+							// content = articleContent.match(reg)
+							articleContent.replace(reg,($0,tag,style,$3,src,$5,text,index)=>{
+								let tagList = text.match(reg);
+								if(tagList){
+									text.replace(reg,($0,tag,style,$3,src,$5,text,index)=>{
+										if(tag==='img'||tag==='video'){
+											content.push($0);
+										} else {
+											content.push(`<div class="hs-text" ${style}>${text}</div>`);
+										}
+										return '';
+									})
+								} else {
+									if(tag==='img'||tag==='video'){
+										content.push($0);
+									} else {
+										content.push(`<div class="hs-text" ${style}>${text}</div>`);
+									}
+								}
+								return ''
+							})
+						}
 						// content = getApp().globalData.content.replace(/^<section>/g,'').replace(/<\/section>$/g,'').split(/<\/section><section>/);
 						this.content = content;
 						this.articleTitle = res.data.articleTitle||'';
@@ -309,9 +338,9 @@
 					}
 			    });
 			}
-			this.$api.get('https://mall.yyooyi.com:8081/login/getUserInfo', {
+			this.$api.get('/login/getUserInfo', {
 				params: {
-					userId: 'a215dfced68b46d08eeb9bf008d5ec4b'
+					userId: this.customerSeqId
 				}
 			}).then(res => {
 				if(res.code === 200){
@@ -355,6 +384,7 @@
 					['insertSection', ['插入段落','请输入文案']],
 					['modifySection', ['修改文字','请输入文案']]
 				]);
+				
 				this.modalType = modalTypeMap.get(modalType)[0];
 				this.modalPlaceHolder = modalTypeMap.get(modalType)[1];
 				
@@ -378,12 +408,15 @@
 						this.fontSize = '14px';
 					}],
 					[/modifySection/, ()=>{ // 修改文本需要设置样式及文本
-						const arrs = curContent.match(/^(<a href="(.*?)"([^>]*)?>)?<div class="hs-text" style="color:([^;]+);font-weight:([^;]+);font-size:([^;]+);">/);
+						const arrs = curContent.match(/^(<a href="(.*?)"([^>]*)?>)?<div class="hs-text".+?>/);
+						const color = curContent.match(/[^-]color:([^;]+);/);
+						const weight = curContent.match(/font-weight:([^;]+);/);
+						const size = curContent.match(/font-size:([^;]+);/);
 						this.hasHref = arrs[2]?arrs[2]:'';
 						this.modalValue = curContent.replace(/^(<a href=".*">)?<div class="hs-text".+?>/g,"").replace(/<\/div>(<\/a>)?$/g,"").replace(/<br\/>/g,'\n'); // 去掉首尾div标签
-						this.fontColor = arrs[4]?arrs[4]:'#000';
-						this.fontWeight = arrs[5]?arrs[5]:'normal';
-						this.fontSize = arrs[6]?arrs[6]:'14px';
+						this.fontColor = color?color[1]:'#000';
+						this.fontWeight = weight?weight[1]:'normal';
+						this.fontSize = size?size[1]:'14px';
 					}],
 					[/.*/, ()=>{ // 展示弹框
 						this.showModal = true;
@@ -463,9 +496,9 @@
 			getGoods() {
 				let _this = this;
 				this.isLoading = true;
-				this.$api.get('https://mall.yyooyi.com:8091/o2oSpu/findPageCusForPc', {
+				this.$api.get('/o2oSpu/findPageCusForPc', {
 					params: {
-						user_seq_id: '1111',
+						user_seq_id: this.customerSeqId,
 						onSale: 'SALE',
 						pageno: this.pageno
 					}
@@ -540,9 +573,9 @@
 			getAds() {
 				let _this = this;
 				this.isLoading = true;
-				this.$api.get('https://mall.yyooyi.com:8081/o2oMyAdvertisement/findPageListByStatus', {
+				this.$api.get('/o2oMyAdvertisement/findPageListByStatus', {
 					params: {
-						customerSeqId: 'a215dfced68b46d08eeb9bf008d5ec4b',
+						customerSeqId: this.customerSeqId,
 						advertisementType: this.advertisementType,
 						pageno: this.pageno
 					}
@@ -573,7 +606,7 @@
 						});
 						this.showUploadImg = false;			
 				        uni.uploadFile({
-				            url: 'https://mall.yyooyi.com:8091/sys/appeal/imgUpload',
+				            url: this.api+'/sys/appeal/imgUpload',
 				            filePath: image.tempFilePaths[0],
 				            name: 'file',
 				            success: (uploadFileRes) => {
@@ -621,7 +654,7 @@
 						});
 						self.showUploadVideo = false;
 				        uni.uploadFile({
-				            url: 'https://mall.yyooyi.com:8091/sys/appeal/imgUpload',
+				            url: this.api+'/sys/appeal/imgUpload',
 				            filePath: video.tempFilePath,
 				            name: 'file',
 				            success: (uploadFileRes) => {
@@ -654,8 +687,8 @@
 					return `<section>${res.replace('onclick="return false;"','')}</section>`
 				}).join('')
 				// getApp().globalData.content = content;
-				this.$api.post('https://mall.yyooyi.com:8081/o2oMyArticle/insert1', {
-					customerSeqId: 'a215dfced68b46d08eeb9bf008d5ec4b',
+				this.$api.post('/o2oMyArticle/insert1', {
+					customerSeqId: this.customerSeqId,
 					articleTitle: this.articleTitle,
 					articleContent: content
 				}).then(res => {
