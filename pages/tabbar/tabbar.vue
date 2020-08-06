@@ -288,7 +288,7 @@
 				</view>
 			</view>
 			<view class="bottom">
-				<view class="weirao" @tap="iconTap('/pages/write/write')">
+				<view class="weirao" @tap="iconTap('/pages/write/article_edit')">
 					<view class="iconfont iconwodewenzhang "></view>
 					<view class="text">我的文章</view>
 				</view>

@@ -8,7 +8,7 @@
 			}
 		},
 		{
-		    "path" : "pages/write/write",
+		    "path" : "pages/write/article_edit",
 			"style": {
 				"navigationBarTitleText": "原创文章"
 			}
@@ -71,7 +71,7 @@
 		"list": [
 			{
 				"name": "index2",
-				"path": "pages/write/write", //启动页面，必选
+				"path": "pages/write/article_edit", //启动页面，必选
 				"query": "merchantSeqId=989f864cff9c42c6bb0438da20553050"
 			},
 			{
