@@ -2,7 +2,7 @@
 	<view class="write">
 		<view class="write-tip">点击文章任意部分进行编辑</view>
 		<view class="write-top">
-			<view class="write-pic" @click="uploadArticlePic">
+			<view class="write-pic" @click="showUploadImg=true;isArticlePicOrUploadImg='artPic';">
 				<image :src="articlePic" mode="aspectFill"></image>
 			</view>
 			<textarea class='write-title-textarea' auto-height='true' :value="articleTitle" @input='inputChange($event)'
@@ -40,7 +40,7 @@
 					<image src="/static/images/write/delete.png" mode="heightFix"></image>
 					<view>删除内容</view>
 				</view>
-				<view class="edit-item" @click="showUploadImg=true">
+				<view class="edit-item" @click="showUploadImg=true;isArticlePicOrUploadImg='upload';">
 					<image src="/static/images/write/img.png" mode="heightFix"></image>
 					<view>插入图片</view>
 				</view>
@@ -83,8 +83,8 @@
 						<view class="good-view">
 							<image :src="item.mainPicUrl" mode="aspectFill"></image>
 							<view class="good-detail">
-								<view class="good-title">{{item.spuTitle2||''}}</view>
-								<view>{{item.logisticFee||0}}</view>
+								<view class="good-title">{{item.title||''}}</view>
+								<view>{{item.price||0}}</view>
 							</view>
 						</view>
 					</view>
@@ -187,7 +187,7 @@
 			</div>
 		</view>
 		<!-- 弹窗 -->
-		<view class="model-wrap" :class="{'model-wrap-show':showModal}">
+		<view class="model-wrap" :class="{'model-wrap-show':showModal}" v-if="showModal">
 			<view class="model">
 				<view class="model-cancle" @click="showModal=false">取消</view>
 				<view class="model-confirm" @click="confirmModel">确定</view>
@@ -254,6 +254,7 @@
 			return {
 				api: this.$webconfig.api_url,
 				isHidePlaceholder: false,
+				isArticlePicOrUploadImg: 'artPic',
 				showEdit: false,
 				showGoodList: false,
 				showAdList: false,
@@ -328,7 +329,8 @@
 				adContent: '<img style="width:100%" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644553182r27d.png">',
 				customerSeqId: this.$common.getLocalSync('customerSeqId'),
 				fromType: 1, //1原创 2别人文章制作 3我的文章再编辑 4审核失败再编辑 5url进入
-				offerRewardSeqId: "" //悬赏id
+				offerRewardSeqId: "" ,//悬赏id
+				seqId:""//文章id
 			}
 		},
 		watch: {
@@ -338,12 +340,10 @@
 			}
 		},
 		onLoad(option) {
-			debugger
-			console.log(this)
-			this.fromType = option.fromType;
-			this.offerRewardSeqId = option.offerRewardSeqId;
+			this.fromType = option.fromType||"";
+			this.offerRewardSeqId = option.offerRewardSeqId||"";
+			this.seqId = option.seqId||"";
 			const curTime = new Date();
-			console.log(this.fromType);
 			this.changeTime =
 				`${curTime.getFullYear()}-${('0'+(curTime.getMonth()+1)).slice(-2)}-${('0'+(curTime.getDate())).slice(-2)}`;
 			this.getUserInfo();
@@ -565,9 +565,9 @@
 			selectGoodList(item) {
 				let content = ''
 				content =
-					`<div class="hs-goods" seqId="${item.seqId}" merchantSeqId="${item.merchantSeqId}">
+					`<div class="hs-goods">
 								<img src="${item.mainPicUrl}" style="width: 40%;height: 100px;border-radius: 10px;"></img>
-								<div class="hs-goods-detail"><div>${item.spuTitle2}</div><div>${item.logisticFee}</div></div>
+								<div class="hs-goods-detail" url="/pages/goods/detail?seqId=${item.spuSeqId}&merchantShopId=${item.merchantShopId}"><div>${item.title}</div><div>${item.price}</div></div>
 							</div>`;
 				this.content.splice(this.active + 1, 0, content);
 				this.active = -1;
@@ -576,15 +576,17 @@
 			getGoods() {
 				let _this = this;
 				this.isLoading = true;
-				this.$api.get('/o2oSpu/findPageCusForPc', {
+				this.$api.get('/o2oMyArticle/findGoodsList', {
 					params: {
-						user_seq_id: this.customerSeqId,
-						onSale: 'SALE',
+						customerSeqId: '9a666e88ecb04e99998242ac839cfa68',
 						pageno: this.pageno
 					}
 				}).then(res => {
-					let list = res.list
-					_this.goodList = _this.goodList.concat(list);
+					if (res.list != null) {
+						let list = res.list
+						_this.goodList = _this.goodList.concat(list);
+					}
+
 				}).finally(() => {
 					this.isLoading = false;
 				})
@@ -743,8 +745,12 @@
 										title: '上传成功！',
 										duration: 2000
 									});
-									this.content.splice(this.active + 1, 0, `<img style="width:100%" src="${res.data.viewUrl}"></img>`);
-									this.active = -1;
+									if (this.isArticlePicOrUploadImg === 'artPic') {
+										this.articlePic = res.data.viewUrl;
+									} else {
+										this.content.splice(this.active + 1, 0, `<img style="width:100%" src="${res.data.viewUrl}"></img>`);
+										this.active = -1;
+									}
 								}
 							},
 							fail: () => {
@@ -758,7 +764,14 @@
 								uni.hideLoading();
 							}
 						});
-					}
+					},
+					fail: () => {
+						uni.showToast({
+							icon: 'none',
+							title: '获取照片失败！',
+							duration: 2000
+						});
+					},
 				});
 			},
 			// 上传视频
@@ -886,13 +899,16 @@
 					});
 					return;
 				}
-				this.$api.post('/o2oOfferReward/updateAfterSave', {
-					userSeqId: this.customerSeqId,
-					articleContent: content,
-					articleTitle: this.articleTitle,
-					articlePic: this.articlePic,
-					advertisementSeqId: this.advertisementSeqId,
-					offerRewardSeqId: this.offerRewardSeqId
+				this.$api.get('/o2oOfferReward/updateAfterSave', {
+					params: {
+						userSeqId: this.customerSeqId,
+						articleContent: content,
+						articleTitle: this.articleTitle,
+						articlePic: this.articlePic,
+						advertisementSeqId: this.advertisementSeqId,
+						offerRewardSeqId: this.offerRewardSeqId,
+						seqId:this.seqId
+					}
 				}).then(res => {
 					let data = res.data;
 					if (res.code === 200) {
