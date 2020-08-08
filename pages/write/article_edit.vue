@@ -18,7 +18,7 @@
 		<view class="content">
 			<view v-for="(item,index) in content" :ref="'content'+index" :class="{'active':active===index}" :key="index" @click="selectEdit(index)">
 				<view v-if="/^<video([\s\S]*)<\/video>$/.test(item)">
-					<image src="/static/images/write/video.jpg" style="width: 100%;"></image>
+					<image src="/static/images/write/videodefault.png" style="width: 100%;" mode="aspectFill"></image>
 				</view>
 				<view v-html="item" v-else></view>
 			</view>
@@ -95,8 +95,8 @@
 			<view class="model">
 				<view class="close" @click="showAdList=false">✖</view>
 				<view class="model-title" style="border: 0;">
-					<text>请选择广告</text>
-					<view class="model-subtitle">单击完成插入</view>
+					<text>请选择你的广告</text>
+					<view class="model-subtitle">单击广告完成插入</view>
 				</view>
 				<view class="model-type-list">
 					<view class="type-view" v-for="(val,key) in adObj" :key="key" :class="{'active':advertisementType === key}" @click="showAdListModel(key)">
@@ -1318,32 +1318,34 @@
 				background-color: #fff;
 
 				.model-title {
-					padding: 20rpx 30rpx;
+					padding: 40rpx 30rpx 20rpx;
 					border-bottom: 1px solid #E8E8E8;
 					text-align: center;
-
+					font-weight: bold;
 					// height: 30rpx;
 					.model-subtitle {
 						font-size: 26rpx;
+						line-height: 50rpx;
 						color: #ccc;
 					}
 				}
 
 				.model-type-list {
 					height: 80rpx;
-					background-color: #DADADA;
+					background-color: rgb(236,236,236);
 					display: flex;
 
 					.type-view {
 						flex: 1;
-						margin-top: 10rpx;
-						height: 60rpx;
+						margin-top: 15rpx;
+						height: 50rpx;
 						text-align: center;
-						line-height: 60rpx;
+						line-height: 50rpx;
 
 						&.active {
-							background-color: #FF0000;
+							background-color: rgb(254,155,148);
 							color: #fff;
+							font-size: 28rpx;
 							border-radius: 30rpx;
 						}
 					}
@@ -1510,18 +1512,21 @@
 					}
 
 					.empty-ad {
-						margin-top: 100rpx;
-						font-size: 26rpx;
+						margin-top: 200rpx;
+						font-size: 24rpx;
 						text-align: center;
+						color: rgb(197,197,197);
 
 						& :last-child {
-							margin-top: 20rpx;
-							width: 240rpx;
-							border-radius: 20rpx;
-							font-size: 30rpx;
+							margin-top: 60rpx;
+							margin-bottom: 20rpx;
+							width: 180rpx;
+							line-height: 50rpx;
+							border-radius: 30rpx;
+							font-size: 26rpx;
 							display: inline-block;
 							color: #fff;
-							background: #00BFFF;
+							background: rgb(5,5,5);
 						}
 					}
 				}
