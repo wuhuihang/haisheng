@@ -594,9 +594,12 @@
 			selectGoodList(item) {
 				let content = ''
 				content =
-					`<div class="hs-goods" seqId="${item.seqId}" merchantSeqId="${item.merchantSeqId} url="/pages/goods/detail?seqId=${item.spuSeqId}&merchantShopId=${item.merchantShopId}"">
+					`<div class="hs-goods" seqId="${item.seqId}" merchantSeqId="${item.merchantSeqId}">
 								<img src="${item.mainPicUrl}" style="width: 40%;height: 100px;border-radius: 10px;"></img>
-								<div class="hs-goods-detail"><div>${item.spuTitle2}</div><div>${item.logisticFee}</div></div>
+								<div class="hs-goods-detail" url="/pages/goods/detail?seqId=${item.spuSeqId}&merchantShopId=${item.merchantShopId}">
+									<div>${item.spuTitle2}</div>
+									<div>${item.logisticFee}</div>
+								</div>
 							</div>`;
 				this.content.splice(this.active + 1, 0, content);
 				this.active = -1;
