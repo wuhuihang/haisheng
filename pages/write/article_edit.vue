@@ -356,6 +356,13 @@
 			}
 
 		},
+		onShow() {
+			if(this.showAdList){
+				this.pageno = 1;
+				this.adList = [];
+				this.getAds();
+			}
+		},
 		methods: {
 			// 我的文章再编辑 审核失败再编辑
 			reEdit(seqId, offerRewardSeqId) {
