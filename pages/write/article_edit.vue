@@ -17,8 +17,9 @@
 		</view>
 		<view class="content">
 			<view v-for="(item,index) in content" :ref="'content'+index" :class="{'active':active===index}" :key="index" @click="selectEdit(index)">
-				<view v-if="/^<video([\s\S]*)<\/video>$/.test(item)">
-					<image src="/static/images/write/videodefault.png" style="width: 100%;" mode="aspectFill"></image>
+				<view v-if="/^<video([\s\S]*)<\/video>$/.test(item)">			
+					<image src="/static/images/write/videodefault.png" style="width: 100%;height:277rpx;" mode="aspectFill"></image>
+					<!-- <video :src='item.match(/src="([\s\S]*?)"/)[1]' style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video> -->
 				</view>
 				<view v-html="item" v-else></view>
 			</view>
@@ -420,7 +421,7 @@
 					if (curDom.name === 'img') {
 						content.push(`<img style="width:100%" src="${curDom.attrs.src}" referrerPolicy="no-referrer"></img>`);
 					} else if (curDom.name === 'video') {
-						content.push(`<video src="${curDom.attrs.src}"></video>`);
+						content.push(`<video src="${curDom.attrs.src}" style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video>`);
 					}
 					if(curDom.children){
 						if(curDom.children.length===1&&curDom.children[0].type==="text"){
@@ -527,7 +528,7 @@
 				let position = this.active;
 				const actions = new Map([
 					[/视频链接/, () => {
-						this.content.splice(this.active + 1, 0, `<video src="${this.modalValue}"></video>`);
+						this.content.splice(this.active + 1, 0, `<video src="${this.modalValue}" style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video>`);
 						this.showUploadVideo = false;
 					}],
 					[/插入链接/, () => {
@@ -724,6 +725,7 @@
 							name: 'file',
 							success: (uploadFileRes) => {
 								let res = JSON.parse(uploadFileRes.data);
+								uni.hideLoading();
 								if (res.code === 200) {
 									uni.showToast({
 										title: '上传成功！',
@@ -735,25 +737,22 @@
 										this.content.splice(this.active + 1, 0, `<img style="width:100%" src="${res.data.viewUrl}"></img>`);
 										this.active = -1;
 									}
+								} else {
+									uni.showToast({
+										icon: 'none',
+										title: '图片上传失败',
+										duration: 2000
+									});
 								}
 							},
 							fail: () => {
+								uni.hideLoading();
 								uni.showToast({
 									icon: 'none',
 									title: '上传失败！',
 									duration: 2000
 								});
-							},
-							complete: () => {
-								uni.hideLoading();
 							}
-						});
-					},
-					fail: () => {
-						uni.showToast({
-							icon: 'none',
-							title: '获取照片失败！',
-							duration: 2000
 						});
 					},
 				});
@@ -783,27 +782,32 @@
 							name: 'file',
 							success: (uploadFileRes) => {
 								let res = JSON.parse(uploadFileRes.data);
+								uni.hideLoading();
 								if (res.code === 200) {
 									uni.showToast({
 										title: '上传成功！',
 										duration: 2000
 									});
-									self.content.splice(self.active + 1, 0, `<video src="${res.data.viewUrl}"></video>`);
+									self.content.splice(self.active + 1, 0, `<video src="${res.data.viewUrl}" style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video>`);
 									self.active = -1;
+								} else {
+									uni.showToast({
+										icon: 'none',
+										title: '视频上传失败',
+										duration: 2000
+									});
 								}
 							},
 							fail: () => {
+								uni.hideLoading();
 								uni.showToast({
 									icon: 'none',
 									title: '上传失败！',
 									duration: 2000
 								});
-							},
-							complete: () => {
-								uni.hideLoading();
 							}
 						});
-					}
+					},
 				});
 			},
 			// release 保存成功是否直接发布
