@@ -28,7 +28,57 @@
 				<view class="ad-text">广告</view>
 				<view class="ad-line"></view>
 			</view>
-			<view v-html="adContent" @click="showAdListModel()"></view>
+			<view class="ad-bottom" @click="showAdListModel()">
+				<view class="ad-view" v-if="['IMAGE_TEXT_ADVERTISEMENT','FOLLOW_ADVERTISEMENT','TELEPHONE_ADVERTISEMENT'].includes(adContent['advertisementType'])">
+					<image style="width: 120rpx;height: 120rpx;border-radius: 60rpx;" :src="adContent.advertisementPic" mode="aspectFill"></image>
+					<view class="ad-detail">
+						<view>{{adContent.advertisementTitle}}</view>
+						<view>{{adContent.advertisementSynopsis||adContent.advertisementExplain}}</view>
+					</view>
+					<view class="ad-button" v-if="adContent['advertisementType']==='FOLLOW_ADVERTISEMENT'">
+						+关注
+					</view>
+					<view class="ad-button" v-if="adContent['advertisementType']==='TELEPHONE_ADVERTISEMENT'">
+						拨打
+					</view>
+				</view>
+				<view class="ad-view" v-else-if="adContent['advertisementType']==='PICTURE_ADVERTISEMENT'">
+					<image style="width:100%;height:200rpx;border-radius:0;" :src="adContent.advertisementPic" mode="aspectFill"></image>
+				</view>
+				<view class="card-view" v-else-if="adContent['advertisementType']==='BUSINESS_CARD_ADVERTISEMENT'">
+					<image style="width:100%;height:300rpx;" :src="adContent.backdropPic" mode="aspectFill"></image>
+					<view class="card-view-body">
+						<view class="card-view-left">
+							<view class="card-view-name">
+								<image style="width:80rpx;height:80rpx;border-radius: 40rpx;" mode="aspectFill" :src="adContent.advertisementPic"></image>
+								<view>
+									<view>{{adContent.name}}</view>
+									<view>Name</view>
+								</view>
+							</view>
+							<view class="card-view-phone">
+								<image style="width:40rpx;height:40rpx;" mode="aspectFill" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644677256rs6c.png"></image>
+								<view>
+									<view>{{adContent.phone}}</view>
+									<view>Tellphone Number</view>
+								</view>
+							</view>
+							<view class="card-view-phone">
+								<image style="width:40rpx;height:40rpx;" mode="aspectFill" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644677256rs6c.png"></image>
+								<view>
+									<view>{{adContent.weChatNum}}</view>
+									<view>Wei Xin</view>
+								</view>
+							</view>
+						</view>
+						<view class="card-view-right">
+							<image style="width:100%;height:180rpx;" mode="aspectFill" :src="adContent.qrCode"></image>
+							<view>长按二维码加我咨询</view>
+						</view>
+					</view>
+				</view>
+			</view>
+			<!-- <view v-html="adContent" @click="showAdListModel()"></view> -->
 		</view>
 		<!-- 内容编辑工具 -->
 		<view class="edit-box-wrap" :class="{'edit-box-show':showEdit}">
@@ -325,7 +375,10 @@
 				content: [
 					'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>',
 				],
-				adContent: '<img style="width:100%" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644553182r27d.png">',
+				adContent: {
+					advertisementType: "PICTURE_ADVERTISEMENT",
+					advertisementPic: "http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644553182r27d.png"
+				},
 				customerSeqId: this.$common.getLocalSync('customerSeqId'),
 				fromType: 1, //1原创 2别人文章制作 3我的文章再编辑 4审核失败再编辑 5url进入
 				offerRewardSeqId: "" //悬赏id
@@ -379,34 +432,22 @@
 							ac = ac ||
 								'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>'
 							content = ac.split(/<\/section><section>/);
-							this.adContent = content.pop(); // 提取出广告
 						} else { // 外部文章
-							// const reg = /<([a-z]+?)(\s[\s\S]*?(style="[^"]*?")?(src="[^"]*?")?[\s\S]*?)?>(([\s\S]*?)<\/\1>)?/g;
-							// // content = articleContent.match(reg)
-							// articleContent.replace(reg, ($0, tag, style, $3, src, $5, text, index) => {
-							// 	let tagList = text.match(reg);
-							// 	if (tagList) {
-							// 		text.replace(reg, ($0, tag, style, $3, src, $5, text, index) => {
-							// 			if (tag === 'img' || tag === 'video') {
-							// 				content.push($0);
-							// 			} else {
-							// 				content.push(`<div class="hs-text" ${style}>${text}</div>`);
-							// 			}
-							// 			return '';
-							// 		})
-							// 	} else {
-							// 		if (tag === 'img' || tag === 'video') {
-							// 			content.push($0);
-							// 		} else {
-							// 			content.push(`<div class="hs-text" ${style}>${text}</div>`);
-							// 		}
-							// 	}
-							// 	return ''
-							// })
 							let virdom = new Parser(articleContent, this).parse();
 							content = this.articleToList(virdom, content);
 						}
-						// content = getApp().globalData.content.replace(/^<section>/g,'').replace(/<\/section>$/g,'').split(/<\/section><section>/);
+						if(res.data.advertisementSeqId){
+							this.$api.get('/o2oMyAdvertisement/getByPk', {
+								params: {
+									seqId: res.data.advertisementSeqId,
+								}
+							}).then(res => {
+								this.adContent = res.data || {
+									advertisementType: "PICTURE_ADVERTISEMENT",
+									advertisementPic: "http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644553182r27d.png"
+								}
+							})
+						}
 						let data = res.data;
 						this.content = content;
 						this.articleTitle = data.articleTitle || '';
@@ -638,48 +679,8 @@
 				this.getAds();
 			},
 			selectAdList(ad) {
-				let content = {
-					'IMAGE_TEXT_ADVERTISEMENT': `<a href="${ad.advertisementLink}" onclick="return false;">
-							<div class="hs-image-text">
-								<img src="${ad.advertisementPic}" style="width: 60px;height: 60px;border-radius: 50%;"></img>
-								<div class="hs-image-text-detail"><div>${ad.advertisementTitle}</div><div>${ad.advertisementSynopsis}</div></div>
-							</div>
-						</a>`,
-					'PICTURE_ADVERTISEMENT': `<a href="${ad.advertisementLink}" onclick="return false;"><img style="width:100%" src="${ad.advertisementPic}"></img></a>`,
-					'FOLLOW_ADVERTISEMENT': `<div class="hs-folow" qrCode="${ad.qrCode}">
-							<img src="${ad.advertisementPic}" style="width: 60px;height: 60px;border-radius: 50%;"></img>
-							<div class="hs-folow-phone-detail"><div>${ad.advertisementTitle}</div><div>${ad.advertisementExplain}</div></div>
-							<div class="hs-folow-phone-button">+关注</div>
-						</div>`,
-					'TELEPHONE_ADVERTISEMENT': `<div class="hs-phone" phone="${ad.phone}">
-							<img src="${ad.advertisementPic}" style="width: 60px;height: 60px;border-radius: 50%;"></img>
-							<div class="hs-folow-phone-detail"><div>${ad.advertisementTitle}</div><div>${ad.advertisementExplain}</div></div>
-							<div class="hs-folow-phone-button">拨打</div>
-						</div>`,
-					'BUSINESS_CARD_ADVERTISEMENT': `<div class="hs-card" backdropPic="${ad.backdropPic}" advertisementPic="${ad.advertisementPic}" name="${ad.name}" phone="${ad.phone}" weChatNum="${ad.weChatNum}" qrCode="${ad.qrCode}">
-							<img src="${ad.backdropPic}" style="width:100%;height:100%;"></img>
-							<div class="hs-card-body">
-								<div class="hs-card-left">
-									<div class="hs-card-name">
-										<img style="height:100%;border-radius: 50%;" src="${ad.advertisementPic}"></img>
-										<div class="hs-card-phone-text"><div>${ad.name}</div><div>Name</div></div>
-									</div>
-									<div class="hs-card-phone">
-										<img style="height:100%;" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644677256rs6c.png"></img><div class="hs-card-phone-text"><div>${ad.phone}</div><div>Tellphone Number</div></div>
-									</div>
-									<div class="hs-card-phone">
-										<img style="height:100%;" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644677256rs6c.png"></img><div class="hs-card-phone-text"><div>${ad.weChatNum}</div><div>Wei Xin</div></div>
-									</div>
-								</div>
-								<div class="hs-card-right">
-									<img style="width:100%;height:80%;pointer-events: auto!important;" src="${ad.qrCode}"></img><div>长按二维码加我咨询</div>
-								</div>
-							</div>
-						</div>`,
-				} [this.advertisementType];
-				this.adContent = content;
+				this.adContent = ad;
 				this.advertisementSeqId = ad.seqId;
-				// this.content.splice(this.active + 1, 0, content);
 				this.active = -1;
 				this.showAdList = false;
 			},
@@ -833,7 +834,6 @@
 					});
 					return;
 				}
-				content = content + `<section>${this.adContent}</section>`;
 				// getApp().globalData.content = content;
 				this.$api.post('/o2oMyArticle/insert1', {
 					customerSeqId: this.customerSeqId,
@@ -889,7 +889,6 @@
 					});
 					return;
 				}
-				content = content + `<section>${this.adContent}</section>`;
 				this.$api.post('/o2oOfferReward/updateAfterSave', {
 					userSeqId: this.customerSeqId,
 					articleContent: content,
@@ -1052,145 +1051,7 @@
 					}
 				}
 			}
-
-			/deep/ .hs-image-text {
-				display: flex;
-				padding: 30rpx 10rpx;
-				border: 1px solid #ccc;
-				background-color: #fff;
-
-				.hs-image-text-detail {
-					flex: 1;
-					padding-left: 20rpx;
-
-					:first-child {
-						display: block;
-						color: #000;
-						height: 50rpx;
-						font-size: 30rpx;
-					}
-
-					:last-child {
-						display: block;
-						color: #999;
-						font-size: 26rpx;
-					}
-				}
-			}
-
-			/deep/ .hs-folow {
-				display: flex;
-				padding: 30rpx 10rpx;
-				border: 1px solid #ccc;
-			}
-
-			/deep/ .hs-phone {
-				display: flex;
-				padding: 30rpx 10rpx;
-				border: 1px solid #ccc;
-			}
-
-			/deep/ .hs-folow-phone-detail {
-				flex: 1;
-				padding-left: 20rpx;
-
-				:first-child {
-					display: block;
-					color: #000;
-					height: 50rpx;
-					font-size: 30rpx;
-				}
-
-				:last-child {
-					display: block;
-					color: #999;
-					font-size: 26rpx;
-				}
-			}
-
-			/deep/ .hs-folow-phone-button {
-				margin-top: 30rpx;
-				width: 120rpx;
-				height: 40rpx;
-				font-size: 26rpx;
-				border-radius: 40rpx;
-				border: 1px solid #FF0000;
-				color: #FF0000;
-				text-align: center;
-				line-height: 40rpx;
-			}
-
-			/deep/ .hs-card {
-				padding: 30rpx 10rpx;
-				height: 300rpx;
-				border: 1px solid #ccc;
-				position: relative;
-
-				.hs-card-body {
-					position: absolute;
-					top: 30rpx;
-					left: 10rpx;
-					width: 97%;
-					height: 300rpx;
-					box-sizing: border-box;
-					padding: 40rpx;
-					display: flex;
-					overflow: hidden;
-
-					.hs-card-left {
-						flex: 1;
-
-						.hs-card-name {
-							height: 80rpx;
-							margin-bottom: 30rpx;
-							display: flex;
-
-							.hs-card-phone-text {
-								flex: 1;
-								margin-left: 20rpx;
-								font-size: 20rpx;
-
-								:first-child {
-									font-size: 26rpx;
-									height: 40rpx;
-								}
-
-								:last-child {
-									height: 40rpx;
-								}
-							}
-						}
-
-						.hs-card-phone {
-							height: 40rpx;
-							margin-bottom: 20rpx;
-							display: flex;
-
-							.hs-card-phone-text {
-								flex: 1;
-								margin-left: 5rpx;
-								font-size: 12rpx;
-
-								:first-child {
-									font-size: 14rpx;
-									height: 20rpx;
-								}
-
-								:last-child {
-									height: 20rpx;
-								}
-							}
-						}
-					}
-
-					.hs-card-right {
-						width: 180rpx;
-						font-size: 20rpx;
-						line-height: 30rpx;
-					}
-				}
-			}
-
+			
 			.ad-content {
 				display: flex;
 
@@ -1207,6 +1068,116 @@
 					height: 30rpx;
 					line-height: 30rpx;
 				}
+			}
+		}
+		
+		
+		
+		.ad-view {
+			display: flex;
+			padding: 30rpx 10rpx;
+			border-bottom: 1px solid #ccc;
+		
+			.ad-detail {
+				flex: 1;
+				padding-left: 20rpx;
+		
+				:first-child {
+					height: 50rpx;
+					font-size: 30rpx;
+				}
+		
+				:last-child {
+					color: #999999;
+					font-size: 26rpx;
+				}
+			}
+		
+			.ad-button {
+				margin-top: 30rpx;
+				width: 120rpx;
+				height: 40rpx;
+				font-size: 26rpx;
+				border-radius: 40rpx;
+				border: 1px solid #FF0000;
+				color: #FF0000;
+				text-align: center;
+				line-height: 40rpx;
+			}
+		}
+		
+		.card-view {
+			padding: 30rpx 10rpx;
+			border-bottom: 1px solid #ccc;
+			position: relative;
+		
+			.card-view-body {
+				position: absolute;
+				top: 30rpx;
+				left: 10rpx;
+				width: 97%;
+				height: 300rpx;
+				box-sizing: border-box;
+				padding: 40rpx;
+				display: flex;
+				overflow: hidden;
+		
+				.card-view-left {
+					flex: 1;
+		
+					.card-view-name {
+						height: 80rpx;
+						margin-bottom: 30rpx;
+						display: flex;
+		
+						&>view {
+							flex: 1;
+							margin-left: 20rpx;
+							font-size: 20rpx;
+		
+							:first-child {
+								font-size: 26rpx;
+								height: 40rpx;
+							}
+						}
+					}
+		
+					.card-view-phone {
+						height: 40rpx;
+						margin-bottom: 20rpx;
+						display: flex;
+		
+						&>view {
+							flex: 1;
+							margin-left: 5rpx;
+							font-size: 12rpx;
+		
+							:first-child {
+								font-size: 14rpx;
+								height: 20rpx;
+							}
+						}
+					}
+				}
+		
+				.card-view-right {
+					width: 180rpx;
+					font-size: 20rpx;
+					line-height: 30rpx;
+				}
+			}
+		}
+		
+		.ad-bottom {
+			.ad-view {
+				border-bottom: 0;
+				border: 1px solid #ccc;
+				background-color: #fff;
+			}
+			.card-view {
+				border-bottom: 0;
+				border: 1px solid #ccc;
+				background-color: #fff;
 			}
 		}
 
@@ -1412,101 +1383,6 @@
 									text-overflow: ellipsis; //文字隐藏后添加省略号
 									white-space: nowrap; //强制不换行
 								}
-							}
-						}
-					}
-
-					.ad-view {
-						display: flex;
-						padding: 30rpx 10rpx;
-						border-bottom: 1px solid #ccc;
-
-						.ad-detail {
-							flex: 1;
-							padding-left: 20rpx;
-
-							:first-child {
-								height: 50rpx;
-								font-size: 30rpx;
-							}
-
-							:last-child {
-								color: #999999;
-								font-size: 26rpx;
-							}
-						}
-
-						.ad-button {
-							margin-top: 30rpx;
-							width: 120rpx;
-							height: 40rpx;
-							font-size: 26rpx;
-							border-radius: 40rpx;
-							border: 1px solid #FF0000;
-							color: #FF0000;
-							text-align: center;
-							line-height: 40rpx;
-						}
-					}
-
-					.card-view {
-						padding: 30rpx 10rpx;
-						border-bottom: 1px solid #ccc;
-						position: relative;
-
-						.card-view-body {
-							position: absolute;
-							top: 30rpx;
-							left: 10rpx;
-							width: 97%;
-							height: 300rpx;
-							box-sizing: border-box;
-							padding: 40rpx;
-							display: flex;
-							overflow: hidden;
-
-							.card-view-left {
-								flex: 1;
-
-								.card-view-name {
-									height: 80rpx;
-									margin-bottom: 30rpx;
-									display: flex;
-
-									&>view {
-										flex: 1;
-										margin-left: 20rpx;
-										font-size: 20rpx;
-
-										:first-child {
-											font-size: 26rpx;
-											height: 40rpx;
-										}
-									}
-								}
-
-								.card-view-phone {
-									height: 40rpx;
-									margin-bottom: 20rpx;
-									display: flex;
-
-									&>view {
-										flex: 1;
-										margin-left: 5rpx;
-										font-size: 12rpx;
-
-										:first-child {
-											font-size: 14rpx;
-											height: 20rpx;
-										}
-									}
-								}
-							}
-
-							.card-view-right {
-								width: 180rpx;
-								font-size: 20rpx;
-								line-height: 30rpx;
 							}
 						}
 					}
