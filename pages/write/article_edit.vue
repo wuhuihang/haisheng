@@ -638,7 +638,7 @@
 				let content = ''
 				content =
 					`<div class="hs-goods" seqId="${item.seqId}" merchantSeqId="${item.merchantSeqId}">
-								<img src="${item.mainPicUrl}" style="width: 40%;height: 100px;border-radius: 10px;"></img>
+								<div class="hs-image" style="background:url('${item.mainPicUrl}') no-repeat center center;background-size:cover;"></div>
 								<div class="hs-goods-detail" url="/pages/goods/detail?seqId=${item.spuSeqId}&merchantShopId=${item.merchantShopId}">
 									<div>${item.spuTitle2}</div>
 									<div>${item.logisticFee}</div>
@@ -1027,9 +1027,8 @@
 				border-radius: 15rpx;
 				padding: 15rpx;
 				background-color: #fff;
-
-				img,
-				image {
+				
+				.hs-image {
 					width: 240rpx;
 					height: 160rpx;
 					border-radius: 10rpx;
