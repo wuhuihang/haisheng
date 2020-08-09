@@ -500,6 +500,7 @@
 						this.fontWeight = 'normal';
 						this.fontColor = '#000';
 						this.fontSize = '14px';
+						this.textAlign = 'left';
 					}],
 					[/modifySection/, () => { // 修改文本需要设置样式及文本
 						const arrs = curContent.match(/^(<a href="(.*?)"([^>]*)?>)?<div class="hs-text".+?>/);
