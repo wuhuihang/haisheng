@@ -461,6 +461,8 @@
 						content.push(`<img style="width:100%" src="${curDom.attrs.src}" referrerPolicy="no-referrer"></img>`);
 					} else if (curDom.name === 'video') {
 						content.push(`<video src="${curDom.attrs.src}" style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png" controls></video>`);
+					} else if (curDom.type === 'text') {
+						content.push(`<div class="hs-text">${curDom.text}</div>`);
 					}
 					if(curDom.children){
 						if(curDom.children.length===1&&curDom.children[0].type==="text"){
