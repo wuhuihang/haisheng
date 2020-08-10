@@ -377,7 +377,7 @@
 				],
 				adContent: {
 					advertisementType: "PICTURE_ADVERTISEMENT",
-					advertisementPic: "http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644553182r27d.png"
+					advertisementPic: "/static/images/write/defaultad.png"
 				},
 				customerSeqId: this.$common.getLocalSync('customerSeqId'),
 				fromType: 1, //1原创 2别人文章制作 3我的文章再编辑 4审核失败再编辑 5url进入
@@ -442,7 +442,7 @@
 							}).then(res => {
 								this.adContent = res.data || {
 									advertisementType: "PICTURE_ADVERTISEMENT",
-									advertisementPic: "http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644553182r27d.png"
+									advertisementPic: "/static/images/write/defaultad.png"
 								}
 							})
 						}
