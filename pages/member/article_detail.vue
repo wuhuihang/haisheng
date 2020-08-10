@@ -1,6 +1,6 @@
 <template>
 	<view class="box" id="box">
-		<view :class="{'article-hidden':!article.articleContent}" v-if="is_login">
+		<view :class="{'article-hidden':!article.articleContent}">
 			<view class="top-title font-bold">
 				{{article.articleTitle}}
 			</view>
@@ -16,10 +16,117 @@
 					{{article.issuedDate}}
 				</view>
 			</view>
-			<jyf-parser class="good-detail" :html="article.articleContent" lazy-load ref="article" selectable
+			<jyf-parser class="good-detail" :html="article.articleContent" @linkpress="linkpress" lazy-load ref="article" selectable
 			 show-with-animation use-anchor>加载中...</jyf-parser>
 			<!-- 底部浏览量 -->
+			
+			
+			<view class="clear"></view>
+			<view class="ad-content">
+				<view class="ad-line"></view>
+				<view class="ad-text">广告</view>
+				<view class="ad-line"></view>
+			</view>
+			<view class="adver-box">
+				<view class="adver-sign">广告</view>
+				<!-- 默认官方广告 -->
+				<navigator url="/pages/index/area_new_people" v-if="cur_advert==0">
+					<image lazy-load class="plateform-ad" src="../../static/images/adver-default.png" mode="aspectFill"></image>
+				</navigator>
+				<!-- 图文广告 -->
+				<view class="advertise_display" v-if="cur_advert==1" @tap="copy(advert.advertisementLink,true)">
+					<image lazy-load class="img-box" :src="advert.advertisementPic" mode="aspectFill"></image>
+					<view class="right">
+						<view class="title text font-bold">
+							{{advert.advertisementTitle}}
+						</view>
+						<view class="desc text">
+							{{advert.advertisementSynopsis}}
+						</view>
+						<view class="tips">
+							推广
+						</view>
+					</view>
+				</view>
+				<!-- 图片广告 -->
+				<view class="advertise_display" v-if="cur_advert==2"  @tap="copy(advert.advertisementLink,true)">
+					<image lazy-load class="adver-img" :src="advert.advertisementPic" mode="aspectFill"></image>
+				</view>
+				<!-- 关注广告 -->
+				<view class="advertise_focus" v-if="cur_advert==3" @tap="adverPop">
+					<image lazy-load class="img-box" :src="advert.advertisementPic" mode="aspectFill"></image>
+					<view class="right">
+						<view class="l">
+							<view class="title text font-bold">
+								{{advert.advertisementTitle}}
+							</view>
+							<view class="desc text">
+								{{advert.advertisementExplain}}
+							</view>
+						</view>
+						<view class="tips">
+							+关注
+						</view>
+					</view>
+				</view>
+				<!-- 电话广告 -->
+				<view class="advertise_phone" v-if="cur_advert==4" @tap="callPhone(advert.phone)">
+					<image lazy-load class="img-box" :src="advert.advertisementPic" mode="aspectFill"></image>
+					<view class="right">
+						<view class="l">
+							<view class="title text font-bold">
+								{{advert.advertisementTitle}}
+							</view>
+							<view class="desc text">
+								{{advert.advertisementExplain}}
+							</view>
+						</view>
+						<view class="tips">
+							<view class="iconfont icondianhua"></view>
+							拨打
+						</view>
+					</view>
+				</view>
+				<!-- 名片广告 -->
+				<view class="advertise_display_card" v-if="cur_advert==5" @tap="adverCard" :style="{backgroundImage:'url('+advert.backdropPic+')'}">
+					<view class="name-box">
+						<image lazy-load class="avatar" :src="advert.advertisementPic" mode="aspectFill"></image>
+						<view class="name-text">
+							<view class="name">{{advert.name}}</view>
+						</view>
+					</view>
+					<view class="phone-box">
+						<view class="left">
+							<view class="phone-line">
+								<text class="iconfont icondianhua"></text>
+								{{advert.phone}}
+							</view>
+							<view class="phone-line">
+								<text class="iconfont iconweixin1"></text>
+								{{advert.weChatNum}}
+							</view>
+						</view>
+						<view class="right">
+							<view class="tips">
+								扫描二维码加我咨询
+							</view>
+							<image lazy-load class="adqrcode-img"  :src="advert.qrCode" mode="aspectFill"></image>
+						</view>
+					</view>
+				</view>
+			</view>
 		</view>
+		
+		<!-- 点击广告弹框 -->
+		<uni-modal class="uni-modal-box" v-if="adpop_show">
+			<div class="uni-mask" @tap="adpop_show=false"></div>
+				<view class="qrcode-img">
+					<image lazy-load @tap="saveImg" class="img" :src="ad_qrcode" />
+					<view class="tips">
+						说明：点击保存二维码
+					</view>
+				</view>
+		</uni-modal>
 		
 	</view>
 </template>
@@ -40,9 +147,15 @@
 	export default {
 		data() {
 			return {
-				is_login: true,
 				article: {},
-				cur_advert: 10,
+				cur_advert: "-1",
+				advert_map:{
+					"IMAGE_TEXT_ADVERTISEMENT":1,
+					"PICTURE_ADVERTISEMENT":2,
+					"FOLLOW_ADVERTISEMENT":3,
+					"TELEPHONE_ADVERTISEMENT":4,
+					"BUSINESS_CARD_ADVERTISEMENT":5
+				},
 				isPraise: false,
 				itemtitle: '',
 				itemprice: '',
@@ -55,7 +168,29 @@
 				nickName:"",
 				deliveryFlag: false,
 				canvasFlag: true,
-				posterData:{}
+				posterData:{},
+				adpop_show:false,//广告弹框
+				ad_qrcode:"",//广告弹框二维码
+				advert:{
+					advertisementExplain: "",
+					advertisementLink: null,
+					advertisementPic: "",
+					advertisementSynopsis: null,
+					advertisementTitle: "",
+					advertisementType: "",
+					backdropPic: null,
+					createBy: null,
+					customerName: "",
+					customerSeqId: "",
+					intactAdvertisement: null,
+					name: null,
+					phone: null,
+					qrCode: "",
+					remarks: null,
+					seqId: "",
+					updateBy: null,
+					weChatNum: null
+				}
 			}
 		},
 		computed: {
@@ -64,51 +199,177 @@
 			})
 		},
 		onLoad(option) {
-			console.log(option);
-				if(option.url){
-					let url=option.url
-					// let url="https://mp.weixin.qq.com/s?__biz=MjM5MTA1MjAxMQ==&mid=2651238538&idx=2&sn=eb68221b315ec6d7d7afd0c544144572&chksm=bd49690e8a3ee018f78b01b4084d6edaeacfb3b15a0bb718a265141270d924365623fa145a66&scene=126&sessionid=1596513409&key=909afa0d496e3a5dc48257c8ef8bbcb0957dfec0347f0eb39e8580fbba73d244a17032a640bf8a54c9f2ef5d67012c77b8769f45562af3824ed3755a2b164e8629b4838a2ca207d56d7042889ef61867&ascene=1&uin=NzgyOTAxOTYy&devicetype=Windows+10+x64&version=62090529&lang=zh_CN&exportkey=ARKI3oWfoJ8SafdByaMXrVY%3D&pass_ticket=RGDfrsKpIbDgw6qUsvJfSe1pP%2Bq3hMtIGYuY9tOejEb0%2Fr8Lreku0iCAplznfeVI"
-					this.getUrlArticle(url)
-				}else {
-					seqId = option.seqId; //文章id
-					this.loadDetail()
-				}
+			if(option.url){
+			}else {
+				seqId = option.seqId; //文章id
+				offerRewardSeqId=option.offerRewardSeqId
+				this.loadDetail()
+			}
 			
 		},
 
 		components: {
 			jyfParser,
-			hchPoster
 		},
+
 		methods: {
-			getUrlArticle(url){
-				this.$api.get('/o2oMyArticle/getHtmlByUrl',{
-					params:{
-						url:url
-					}
-				}).then(res=>{
-					if(res.code==200){
-						let data = res.data;
-						this.article = data;
-						console.log(this.article);
-					}
-				})
-			},
-			// 文章详情
 			loadDetail() {
 				let self = this;
 				this.$api.get('/o2oMyArticle/getArticleInfo', {
 					params: {
 						seqId: seqId,
+						offerRewardSeqId: offerRewardSeqId,
 					}
 				}).then(res => {
 					if (res.code == 200) {
 						let data = res.data;
 						this.article = data;
+						data.praiseNum = data.praiseNum == null ? 0 : data.praiseNum;
 						this.articlePic = this.article.articlePic;
+						this.getAdver(data.advertisementSeqId)
 					}
 				})
 			},
+			linkpress(e) {
+				this.copy(e.href,true)
+			},
+			// 复制
+			copy(data,isUrl=false){
+				let self=this;
+				// #ifndef H5
+				uni.setClipboardData({
+				    data: data,
+				    success: function () {
+						uni.hideToast()//隐藏提示
+						let msg=isUrl?"链接复制成功，请将链接复制到浏览器查看":"微信号码复制成功，请打开微信添加"
+						self.$box.confirm(msg,false)
+				    }
+				});
+				// #endif
+			},
+			// 打电话
+			callPhone(phone) {
+				let self=this;
+				uni.showModal({
+					content: "是否拨打电话 " + phone + "?",
+					success(res) {
+						if (res.confirm) {
+							uni.makePhoneCall({
+								phoneNumber: phone,
+								success: (res) => {},
+								fail: (res) => {
+									uni.showToast({
+										title: "拨号失败，请稍后重试"
+									});
+									console.log(res);
+								}
+							});
+						}
+					}
+				})
+			},
+			// 广告弹出二维码
+			adverPop(img){
+				this.adpop_show=true;
+				this.ad_qrcode=this.advert.qrCode
+			},
+			adverCard(){
+				let self=this;
+				uni.showActionSheet({
+					title: '',
+					itemList: ['打电话','添加微信','保存二维码'],
+					success: (e) => {
+						console.log(e);
+						if(e.tapIndex==0){
+							self.callPhone(self.advert.phone)
+						}else if(e.tapIndex==1){
+							self.copy(self.advert.weChatNum)
+						}else if(e.tapIndex==2){
+							self.ad_qrcode=self.advert.qrCode
+							self.adverPop()
+						}
+					}
+				})
+			},
+			
+			getAdver(seqId){
+				if(seqId){
+					this.$api.get('/o2oAdvertisementSnapshot/getByPk',{
+						params:{
+							seqId:seqId
+						}
+					}).then(res=>{
+						if(res.code==200&&res.data!=null){
+							this.advert=res.data;
+							let advertisementType=res.data.advertisementType
+							this.cur_advert=this.advert_map[advertisementType]
+						}else {
+							this.cur_advert=0
+						}
+					})
+				}else{
+					this.cur_advert=0
+				}
+				
+			},
+			// 保存图片
+			saveImg() {
+				let self = this;
+				uni.showActionSheet({
+					title: '标题',
+					itemList: ['保存图片到本地'],
+					success: (e) => {
+						uni.saveImageToPhotosAlbum({
+							filePath: self.ad_qrcode,
+							success: function() {
+								self.$box.confirm('已保存到本地相册，请打开相册查看',false);
+								this.adpop_show=false
+							},
+							fail: function(err) {
+								self.saveImgFail(err)
+							}
+						});
+					}
+				})
+			},
+			// 保存图片失败
+			saveImgFail(err) {
+				if (err.errMsg === "saveImageToPhotosAlbum:fail auth deny" || err.errMsg ===
+					"saveImageToPhotosAlbum:fail authorize no response" || err.errMsg ===
+					"saveImageToPhotosAlbum:fail auth denied") { // 没有授权，重新授权，兼容iso和Android
+					uni.showModal({
+						title: '授权提示',
+						content: "是否允许获取保存相册权限",
+						success: (res) => {
+							if (res.confirm) { // 点击确定，则调用相册授权
+								uni.openSetting({
+									success(settingdata) {
+										if (settingdata.authSetting["scope.writePhotosAlbum"]) {
+											uni.showToast({
+												title: '获取权限成功，再次点击图片保存到相册'
+											});
+										} else {
+											console.log("获取权限失败")
+											uni.showToast({
+												title: '请确定已打开保存权限',
+												icon: "none"
+											});
+										}
+									}
+								})
+							}
+						}
+					})
+				} else if (err.errMsg === "saveImageToPhotosAlbum:fail file not found" || err.errMsg ===
+					"saveImageToPhotosAlbum:fail file not exists" || err.errMsg ===
+					"saveImageToPhotosAlbum:fail get file data fail"
+				) { // 无图片，则提示
+					uni.showToast({
+						title: '暂无图片',
+						icon: "none"
+					});
+				}
+			}
 		}
 	}
 
@@ -304,7 +565,8 @@
 		flex-wrap: wrap;
 
 		.img {
-			width: 600rpx;
+			width: 500rpx;
+			height: 500rpx;
 		}
 
 		.tips {
@@ -570,51 +832,55 @@
 	.advertise_display_card {
 		display: flex;
 		justify-content: space-between;
+		flex-wrap: wrap;
 		align-items: center;
 		background: #fff;
 		border-radius: 10rpx;
-		margin-bottom: 30rpx;
 		width: 642rpx;
 		height: 360rpx;
-		padding: 20rpx 30rpx;
-		background: url('@/static/images/adver-card-bg.png') no-repeat;
-		background-size: 100% auto;
-
-		.left {
-			width: 400rpx;
-			flex-shrink: 0;
-
-			.name-box {
-				width: 100%;
+		padding: 20rpx 20rpx;
+		background: url('@/static/images/adver-card-bg.png');
+		background-repeat: no-repeat;
+		background-size:cover;
+		background-position: center center; 
+	
+	
+		.name-box {
+			width: 100%;
+			display: flex;
+			align-items: center;
+			font-size: 26rpx;
+	
+			.avatar {
+				width: 124rpx;
+				height: 124rpx;
+				background: rgba(255, 255, 255, 1);
+				border-radius: 50%;
+				margin-right: 20rpx;
+			}
+	
+			.name-text {
 				display: flex;
-				align-items: center;
-				font-size: 26rpx;
-
-				.avatar {
-					width: 124rpx;
-					height: 124rpx;
-					background: rgba(255, 255, 255, 1);
-					border-radius: 50%;
-					margin-right: 20rpx;
-				}
-
-				.name-text {
-					height: 90rpx;
-					display: flex;
-					align-content: space-between;
-					flex-wrap: wrap;
-
-					.name {
-						width: 100%;
-						font-size: 36rpx;
-						font-weight: bold;
-					}
+				align-content: space-between;
+				flex-wrap: wrap;
+	
+				.name {
+					width: 100%;
+					font-size: 36rpx;
+					font-weight: bold;
 				}
 			}
-
-			.phone-box {
-				margin-top: 70rpx;
-
+		}
+	
+		.phone-box {
+			width: 100%;
+			margin-top: 10rpx;
+			display: flex;
+			justify-content: space-between;
+	
+			.left {
+				margin-top: 50rpx;
+	
 				.phone-line {
 					.iconfont {
 						display: inline-block;
@@ -626,41 +892,65 @@
 						background: rgba(51, 51, 51, 1);
 						font-size: 30rpx;
 						color: white;
-						margin-right: 24rpx;
+						margin-right: 20rpx;
+						font-weight: normal;
 					}
-
+	
 					font-size:26rpx;
 					font-weight: bold;
 					margin-bottom: 38rpx;
 				}
 			}
-		}
-
-		.right {
-			flex-grow: 1;
-			font-size: 20rpx;
-
-			.qrcode-img {
-				width: 186rpx;
-				height: 186rpx;
-				margin-top: 15rpx;
+	
+			.right {
+				width: 200rpx;
+				flex-shrink: 0;
+				font-size: 20rpx;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+	
+				.adqrcode-img {
+					width: 186rpx;
+					height: 186rpx;
+					margin-top: 15rpx;
+				}
 			}
 		}
 	}
-
-	.blank {
-		height: 300rpx;
-	}
-
+.ad-content {
+			display: flex;
+			margin-top: 30rpx;
+			.ad-line {
+				flex: 1;
+				height: 14rpx;
+				border-bottom: 1px solid #ccc;
+			}
+		
+			.ad-text {
+				width: 100rpx;
+				font-size: 20rpx;
+				text-align: center;
+				height: 30rpx;
+				line-height: 30rpx;
+			}
+		}
 	.adver-box {
-		width: calc(100% - 70rpx);
-		position: fixed;
-		bottom: 0;
-		left: 50%;
-		z-index: 10;
-		bottom: 30rpx;
-		transform: translateX(-50%);
-
+		width: 100%;
+		margin-top: 40rpx;
+		position: relative;
+		.adver-sign {
+			position: absolute;
+			right: 30rpx;
+			top: 20rpx;
+			border: 1px solid $color-primary;
+			border-radius: 10rpx;
+			font-size: 16rpx;
+			padding: 0rpx 4rpx;
+			color: $color-primary;
+			z-index: 10;
+			
+		}
 		.plateform-ad {
 			width: 100%;
 			height: 140rpx;

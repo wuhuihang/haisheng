@@ -17,11 +17,9 @@
 		</view>
 		<view class="content">
 			<view v-for="(item,index) in content" :ref="'content'+index" :class="{'active':active===index}" :key="index" @click="selectEdit(index)">
-				<!-- 处理richtext 无法解析video问题 -->
-				<view v-if="/^<video([\s\S]*)<\/video>$/.test(item)">
-					<!-- 处理app video层级兼容问题 -->
-					<image src="/static/images/write/video.jpg" style="width: 100%;"></image>
-					<!-- <video :src='item.match(/src="([\s\S]*)"/)[1]'></video>	 -->
+				<view v-if="/^<video([\s\S]*)<\/video>$/.test(item)">			
+					<image src="/static/images/write/videodefault.png" style="width: 100%;height:277rpx;" mode="aspectFill"></image>
+					<!-- <video :src='item.match(/src="([\s\S]*?)"/)[1]' style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video> -->
 				</view>
 				<view v-html="item" v-else></view>
 			</view>
@@ -30,7 +28,57 @@
 				<view class="ad-text">广告</view>
 				<view class="ad-line"></view>
 			</view>
-			<view v-html="adContent" @click="showAdListModel()"></view>
+			<view class="ad-bottom" @click="showAdListModel()">
+				<view class="ad-view" v-if="['IMAGE_TEXT_ADVERTISEMENT','FOLLOW_ADVERTISEMENT','TELEPHONE_ADVERTISEMENT'].includes(adContent['advertisementType'])">
+					<image style="width: 120rpx;height: 120rpx;border-radius: 60rpx;" :src="adContent.advertisementPic" mode="aspectFill"></image>
+					<view class="ad-detail">
+						<view>{{adContent.advertisementTitle}}</view>
+						<view>{{adContent.advertisementSynopsis||adContent.advertisementExplain}}</view>
+					</view>
+					<view class="ad-button" v-if="adContent['advertisementType']==='FOLLOW_ADVERTISEMENT'">
+						+关注
+					</view>
+					<view class="ad-button" v-if="adContent['advertisementType']==='TELEPHONE_ADVERTISEMENT'">
+						拨打
+					</view>
+				</view>
+				<view class="ad-view" v-else-if="adContent['advertisementType']==='PICTURE_ADVERTISEMENT'">
+					<image style="width:100%;height:200rpx;border-radius:0;" :src="adContent.advertisementPic" mode="aspectFill"></image>
+				</view>
+				<view class="card-view" v-else-if="adContent['advertisementType']==='BUSINESS_CARD_ADVERTISEMENT'">
+					<image style="width:100%;height:300rpx;" :src="adContent.backdropPic" mode="aspectFill"></image>
+					<view class="card-view-body">
+						<view class="card-view-left">
+							<view class="card-view-name">
+								<image style="width:80rpx;height:80rpx;border-radius: 40rpx;" mode="aspectFill" :src="adContent.advertisementPic"></image>
+								<view>
+									<view>{{adContent.name}}</view>
+									<view>Name</view>
+								</view>
+							</view>
+							<view class="card-view-phone">
+								<image style="width:40rpx;height:40rpx;" mode="aspectFill" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644677256rs6c.png"></image>
+								<view>
+									<view>{{adContent.phone}}</view>
+									<view>Tellphone Number</view>
+								</view>
+							</view>
+							<view class="card-view-phone">
+								<image style="width:40rpx;height:40rpx;" mode="aspectFill" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644677256rs6c.png"></image>
+								<view>
+									<view>{{adContent.weChatNum}}</view>
+									<view>Wei Xin</view>
+								</view>
+							</view>
+						</view>
+						<view class="card-view-right">
+							<image style="width:100%;height:180rpx;" mode="aspectFill" :src="adContent.qrCode"></image>
+							<view>长按二维码加我咨询</view>
+						</view>
+					</view>
+				</view>
+			</view>
+			<!-- <view v-html="adContent" @click="showAdListModel()"></view> -->
 		</view>
 		<!-- 内容编辑工具 -->
 		<view class="edit-box-wrap" :class="{'edit-box-show':showEdit}">
@@ -98,8 +146,8 @@
 			<view class="model">
 				<view class="close" @click="showAdList=false">✖</view>
 				<view class="model-title" style="border: 0;">
-					<text>请选择广告</text>
-					<view class="model-subtitle">单击完成插入</view>
+					<text>请选择你的广告</text>
+					<view class="model-subtitle">单击广告完成插入</view>
 				</view>
 				<view class="model-type-list">
 					<view class="type-view" v-for="(val,key) in adObj" :key="key" :class="{'active':advertisementType === key}" @click="showAdListModel(key)">
@@ -199,7 +247,7 @@
 							'font-size':fontSize,
 							'text-align':textAlign
 						}"
-					 :maxlength="-1" :placeholder="modalPlaceHolder" placeholder-class="model-placeholder"></textarea>
+					 :maxlength="-1" :disabled="showModelStyle" :placeholder="modalPlaceHolder" placeholder-class="model-placeholder"></textarea>
 				</view>
 				<view class="model-style-wrap" v-show="showModelStyle">
 					<view class="close" @click="showModelStyle=false">✖</view>
@@ -249,6 +297,7 @@
 </template>
 
 <script>
+	var Parser = require('@/components/jyf-parser/libs/MpHtmlParser.js');
 	export default {
 		data() {
 			return {
@@ -326,11 +375,13 @@
 				content: [
 					'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>',
 				],
-				adContent: '<img style="width:100%" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644553182r27d.png">',
+				adContent: {
+					advertisementType: "PICTURE_ADVERTISEMENT",
+					advertisementPic: "http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644553182r27d.png"
+				},
 				customerSeqId: this.$common.getLocalSync('customerSeqId'),
 				fromType: 1, //1原创 2别人文章制作 3我的文章再编辑 4审核失败再编辑 5url进入
-				offerRewardSeqId: "" ,//悬赏id
-				seqId:""//文章id
+				offerRewardSeqId: "" //悬赏id
 			}
 		},
 		watch: {
@@ -340,9 +391,8 @@
 			}
 		},
 		onLoad(option) {
-			this.fromType = option.fromType||"";
-			this.offerRewardSeqId = option.offerRewardSeqId||"";
-			this.seqId = option.seqId||"";
+			this.fromType = option.fromType;
+			this.offerRewardSeqId = option.offerRewardSeqId;
 			const curTime = new Date();
 			this.changeTime =
 				`${curTime.getFullYear()}-${('0'+(curTime.getMonth()+1)).slice(-2)}-${('0'+(curTime.getDate())).slice(-2)}`;
@@ -355,6 +405,13 @@
 				this.reEdit(option.seqId, option.offerRewardSeqId)
 			}
 
+		},
+		onShow() {
+			if(this.showAdList){
+				this.pageno = 1;
+				this.adList = [];
+				this.getAds();
+			}
 		},
 		methods: {
 			// 我的文章再编辑 审核失败再编辑
@@ -369,35 +426,26 @@
 						let articleContent = res.data.articleContent || '';
 						let content = [];
 						if (articleContent.startsWith('<section>')) { // 内部文章
-							let ac = articleContent.replace(/^<section>/g, '').replace(/<\/section>$/g, '')
+							let ac = articleContent.replace(/^<section>/g, '').replace(/<\/section>$/g, '');
 							ac = ac ||
 								'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>'
-							content = ac.split(/<\/section><section>/)
+							content = ac.split(/<\/section><section>/);
 						} else { // 外部文章
-							const reg = /<([a-z]+?)(\s[\s\S]*?(style="[^"]*?")?(src="[^"]*?")?[\s\S]*?)?>(([\s\S]*?)<\/\1>)?/g;
-							// content = articleContent.match(reg)
-							articleContent.replace(reg, ($0, tag, style, $3, src, $5, text, index) => {
-								let tagList = text.match(reg);
-								if (tagList) {
-									text.replace(reg, ($0, tag, style, $3, src, $5, text, index) => {
-										if (tag === 'img' || tag === 'video') {
-											content.push($0);
-										} else {
-											content.push(`<div class="hs-text" ${style}>${text}</div>`);
-										}
-										return '';
-									})
-								} else {
-									if (tag === 'img' || tag === 'video') {
-										content.push($0);
-									} else {
-										content.push(`<div class="hs-text" ${style}>${text}</div>`);
-									}
+							let virdom = new Parser(articleContent, this).parse();
+							content = this.articleToList(virdom, content);
+						}
+						if(res.data.advertisementSeqId){
+							this.$api.get('/o2oAdvertisementSnapshot/getByPk',{
+								params: {
+									seqId: res.data.advertisementSeqId,
 								}
-								return ''
+							}).then(res => {
+								this.adContent = res.data || {
+									advertisementType: "PICTURE_ADVERTISEMENT",
+									advertisementPic: "http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644553182r27d.png"
+								}
 							})
 						}
-						// content = getApp().globalData.content.replace(/^<section>/g,'').replace(/<\/section>$/g,'').split(/<\/section><section>/);
 						let data = res.data;
 						this.content = content;
 						this.articleTitle = data.articleTitle || '';
@@ -406,7 +454,28 @@
 					}
 				});
 			},
-
+			articleToList(virdom, content) {
+				for(let i=0;i<virdom.length;i++){
+					let curDom = virdom[i];
+					if (curDom.name === 'img') {
+						content.push(`<img style="width:100%" src="${curDom.attrs.src}" referrerPolicy="no-referrer"></img>`);
+					} else if (curDom.name === 'video') {
+						content.push(`<video src="${curDom.attrs.src}" style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png" controls></video>`);
+					}
+					if(curDom.children){
+						if(curDom.children.length===1&&curDom.children[0].type==="text"){
+							let style = '';
+							if(curDom.attrs&&curDom.attrs.style) {
+								style=` style="${curDom.attrs.style}"`
+							}
+							content.push(`<div class="hs-text"${style}>${curDom.children[0].text}</div>`);
+						} else {
+							content = this.articleToList(curDom.children,content);
+						}
+					}
+				}
+				return content;
+			},
 
 
 			inputChange(event) {
@@ -470,6 +539,7 @@
 						this.fontWeight = 'normal';
 						this.fontColor = '#000';
 						this.fontSize = '14px';
+						this.textAlign = 'left';
 					}],
 					[/modifySection/, () => { // 修改文本需要设置样式及文本
 						const arrs = curContent.match(/^(<a href="(.*?)"([^>]*)?>)?<div class="hs-text".+?>/);
@@ -498,7 +568,7 @@
 				let position = this.active;
 				const actions = new Map([
 					[/视频链接/, () => {
-						this.content.splice(this.active + 1, 0, `<video src="${this.modalValue}"></video>`);
+						this.content.splice(this.active + 1, 0, `<video src="${this.modalValue}"  style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video>`);
 						this.showUploadVideo = false;
 					}],
 					[/插入链接/, () => {
@@ -565,9 +635,12 @@
 			selectGoodList(item) {
 				let content = ''
 				content =
-					`<div class="hs-goods">
-								<img src="${item.mainPicUrl}" style="width: 40%;height: 100px;border-radius: 10px;"></img>
-								<div class="hs-goods-detail" url="/pages/goods/detail?seqId=${item.spuSeqId}&merchantShopId=${item.merchantShopId}"><div>${item.title}</div><div>${item.price}</div></div>
+					`<div class="hs-goods" url="/pages/goods/detail?seqId=${item.spuSeqId}&merchantShopId=${item.merchantShopId}">
+								<div class="hs-image" style="background:url('${item.mainPicUrl}') no-repeat center center;background-size:cover;"></div>
+								<div class="hs-goods-detail" url="/pages/goods/detail?seqId=${item.spuSeqId}&merchantShopId=${item.merchantShopId}">
+									<div>${item.title}</div>
+									<div>${item.price}</div>
+								</div>
 							</div>`;
 				this.content.splice(this.active + 1, 0, content);
 				this.active = -1;
@@ -578,6 +651,7 @@
 				this.isLoading = true;
 				this.$api.get('/o2oMyArticle/findGoodsList', {
 					params: {
+						// customerSeqId: this.customerSeqId,
 						customerSeqId: '9a666e88ecb04e99998242ac839cfa68',
 						pageno: this.pageno
 					}
@@ -586,7 +660,7 @@
 						let list = res.list
 						_this.goodList = _this.goodList.concat(list);
 					}
-
+				
 				}).finally(() => {
 					this.isLoading = false;
 				})
@@ -604,48 +678,8 @@
 				this.getAds();
 			},
 			selectAdList(ad) {
-				let content = {
-					'IMAGE_TEXT_ADVERTISEMENT': `<a href="${ad.advertisementLink}" onclick="return false;">
-							<div class="hs-image-text">
-								<img src="${ad.advertisementPic}" style="width: 60px;height: 60px;border-radius: 50%;"></img>
-								<div class="hs-image-text-detail"><div>${ad.advertisementTitle}</div><div>${ad.advertisementSynopsis}</div></div>
-							</div>
-						</a>`,
-					'PICTURE_ADVERTISEMENT': `<a href="${ad.advertisementLink}" onclick="return false;"><img style="width:100%" src="${ad.advertisementPic}"></img></a>`,
-					'FOLLOW_ADVERTISEMENT': `<div class="hs-folow" qrCode="${ad.qrCode}">
-							<img src="${ad.advertisementPic}" style="width: 60px;height: 60px;border-radius: 50%;"></img>
-							<div class="hs-folow-phone-detail"><div>${ad.advertisementTitle}</div><div>${ad.advertisementExplain}</div></div>
-							<div class="hs-folow-phone-button">+关注</div>
-						</div>`,
-					'TELEPHONE_ADVERTISEMENT': `<div class="hs-phone" phone="${ad.phone}">
-							<img src="${ad.advertisementPic}" style="width: 60px;height: 60px;border-radius: 50%;"></img>
-							<div class="hs-folow-phone-detail"><div>${ad.advertisementTitle}</div><div>${ad.advertisementExplain}</div></div>
-							<div class="hs-folow-phone-button">拨打</div>
-						</div>`,
-					'BUSINESS_CARD_ADVERTISEMENT': `<div class="hs-card" backdropPic="${ad.backdropPic}" advertisementPic="${ad.advertisementPic}" name="${ad.name}" phone="${ad.phone}" weChatNum="${ad.weChatNum}" qrCode="${ad.qrCode}">
-							<img src="${ad.backdropPic}" style="width:100%;height:100%;"></img>
-							<div class="hs-card-body">
-								<div class="hs-card-left">
-									<div class="hs-card-name">
-										<img style="height:100%;border-radius: 50%;" src="${ad.advertisementPic}"></img>
-										<div class="hs-card-phone-text"><div>${ad.name}</div><div>Name</div></div>
-									</div>
-									<div class="hs-card-phone">
-										<img style="height:100%;" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644677256rs6c.png"></img><div class="hs-card-phone-text"><div>${ad.phone}</div><div>Tellphone Number</div></div>
-									</div>
-									<div class="hs-card-phone">
-										<img style="height:100%;" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644677256rs6c.png"></img><div class="hs-card-phone-text"><div>${ad.weChatNum}</div><div>Wei Xin</div></div>
-									</div>
-								</div>
-								<div class="hs-card-right">
-									<img style="width:100%;height:80%;pointer-events: auto!important;" src="${ad.qrCode}"></img><div>长按二维码加我咨询</div>
-								</div>
-							</div>
-						</div>`,
-				} [this.advertisementType];
-				this.adContent = content;
+				this.adContent = ad;
 				this.advertisementSeqId = ad.seqId;
-				// this.content.splice(this.active + 1, 0, content);
 				this.active = -1;
 				this.showAdList = false;
 			},
@@ -664,54 +698,6 @@
 				}).finally(() => {
 					this.isLoading = false;
 				})
-			},
-			uploadArticlePic() {
-				uni.chooseImage({
-					count: 1,
-					sizeType: ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
-					sourceType: [
-						['album']
-					], //从相册选择
-					success: image => {
-						if (image.tempFiles[0].size > 2 * 1024 * 1024) {
-							uni.showToast({
-								icon: 'none',
-								title: '照片大小不能超过2M！',
-								duration: 2000
-							});
-							return;
-						}
-						uni.showLoading({
-							title: '加载中'
-						});
-						this.showUploadImg = false;
-						uni.uploadFile({
-							url: this.api + '/sys/appeal/imgUpload',
-							filePath: image.tempFilePaths[0],
-							name: 'file',
-							success: (uploadFileRes) => {
-								let res = JSON.parse(uploadFileRes.data);
-								if (res.code === 200) {
-									uni.showToast({
-										title: '上传成功！',
-										duration: 2000
-									});
-									this.articlePic = res.data.viewUrl;
-								}
-							},
-							fail: () => {
-								uni.showToast({
-									icon: 'none',
-									title: '上传失败！',
-									duration: 2000
-								});
-							},
-							complete: () => {
-								uni.hideLoading();
-							}
-						});
-					}
-				});
 			},
 			// 上传图片
 			uploadImg(type) {
@@ -740,36 +726,34 @@
 							name: 'file',
 							success: (uploadFileRes) => {
 								let res = JSON.parse(uploadFileRes.data);
+								uni.hideLoading();
 								if (res.code === 200) {
 									uni.showToast({
 										title: '上传成功！',
 										duration: 2000
 									});
-									if (this.isArticlePicOrUploadImg === 'artPic') {
+									if(this.isArticlePicOrUploadImg==='artPic'){
 										this.articlePic = res.data.viewUrl;
-									} else {
+									}else{
 										this.content.splice(this.active + 1, 0, `<img style="width:100%" src="${res.data.viewUrl}"></img>`);
 										this.active = -1;
 									}
+								} else {
+									uni.showToast({
+										icon: 'none',
+										title: '图片上传失败',
+										duration: 2000
+									});
 								}
 							},
 							fail: () => {
+								uni.hideLoading();
 								uni.showToast({
 									icon: 'none',
 									title: '上传失败！',
 									duration: 2000
 								});
-							},
-							complete: () => {
-								uni.hideLoading();
 							}
-						});
-					},
-					fail: () => {
-						uni.showToast({
-							icon: 'none',
-							title: '获取照片失败！',
-							duration: 2000
 						});
 					},
 				});
@@ -799,27 +783,32 @@
 							name: 'file',
 							success: (uploadFileRes) => {
 								let res = JSON.parse(uploadFileRes.data);
+								uni.hideLoading();
 								if (res.code === 200) {
 									uni.showToast({
 										title: '上传成功！',
 										duration: 2000
 									});
-									self.content.splice(self.active + 1, 0, `<video src="${res.data.viewUrl}"></video>`);
+									self.content.splice(self.active + 1, 0, `<video src="${res.data.viewUrl}" controls style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;"></video>`);
 									self.active = -1;
+								} else {
+									uni.showToast({
+										icon: 'none',
+										title: '视频上传失败',
+										duration: 2000
+									});
 								}
 							},
 							fail: () => {
+								uni.hideLoading();
 								uni.showToast({
 									icon: 'none',
 									title: '上传失败！',
 									duration: 2000
 								});
-							},
-							complete: () => {
-								uni.hideLoading();
 							}
 						});
-					}
+					},
 				});
 			},
 			// release 保存成功是否直接发布
@@ -868,7 +857,6 @@
 								url: '/pages/make_money/issue_reward'
 							})
 						} else {
-							console.log(12);
 							uni.redirectTo({
 								url: "/pages/member/article_detail?seqId=" + data.seqId
 							})
@@ -899,16 +887,13 @@
 					});
 					return;
 				}
-				this.$api.get('/o2oOfferReward/updateAfterSave', {
-					params: {
-						userSeqId: this.customerSeqId,
-						articleContent: content,
-						articleTitle: this.articleTitle,
-						articlePic: this.articlePic,
-						advertisementSeqId: this.advertisementSeqId,
-						offerRewardSeqId: this.offerRewardSeqId,
-						seqId:this.seqId
-					}
+				this.$api.post('/o2oOfferReward/updateAfterSave', {
+					userSeqId: this.customerSeqId,
+					articleContent: content,
+					articleTitle: this.articleTitle,
+					articlePic: this.articlePic,
+					advertisementSeqId: this.advertisementSeqId,
+					offerRewardSeqId: this.offerRewardSeqId
 				}).then(res => {
 					let data = res.data;
 					if (res.code === 200) {
@@ -1040,9 +1025,8 @@
 				border-radius: 15rpx;
 				padding: 15rpx;
 				background-color: #fff;
-
-				img,
-				image {
+				
+				.hs-image {
 					width: 240rpx;
 					height: 160rpx;
 					border-radius: 10rpx;
@@ -1064,145 +1048,7 @@
 					}
 				}
 			}
-
-			/deep/ .hs-image-text {
-				display: flex;
-				padding: 30rpx 10rpx;
-				border: 1px solid #ccc;
-				background-color: #fff;
-
-				.hs-image-text-detail {
-					flex: 1;
-					padding-left: 20rpx;
-
-					:first-child {
-						display: block;
-						color: #000;
-						height: 50rpx;
-						font-size: 30rpx;
-					}
-
-					:last-child {
-						display: block;
-						color: #999;
-						font-size: 26rpx;
-					}
-				}
-			}
-
-			/deep/ .hs-folow {
-				display: flex;
-				padding: 30rpx 10rpx;
-				border: 1px solid #ccc;
-			}
-
-			/deep/ .hs-phone {
-				display: flex;
-				padding: 30rpx 10rpx;
-				border: 1px solid #ccc;
-			}
-
-			/deep/ .hs-folow-phone-detail {
-				flex: 1;
-				padding-left: 20rpx;
-
-				:first-child {
-					display: block;
-					color: #000;
-					height: 50rpx;
-					font-size: 30rpx;
-				}
-
-				:last-child {
-					display: block;
-					color: #999;
-					font-size: 26rpx;
-				}
-			}
-
-			/deep/ .hs-folow-phone-button {
-				margin-top: 30rpx;
-				width: 120rpx;
-				height: 40rpx;
-				font-size: 26rpx;
-				border-radius: 40rpx;
-				border: 1px solid #FF0000;
-				color: #FF0000;
-				text-align: center;
-				line-height: 40rpx;
-			}
-
-			/deep/ .hs-card {
-				padding: 30rpx 10rpx;
-				height: 300rpx;
-				border: 1px solid #ccc;
-				position: relative;
-
-				.hs-card-body {
-					position: absolute;
-					top: 30rpx;
-					left: 10rpx;
-					width: 97%;
-					height: 300rpx;
-					box-sizing: border-box;
-					padding: 40rpx;
-					display: flex;
-					overflow: hidden;
-
-					.hs-card-left {
-						flex: 1;
-
-						.hs-card-name {
-							height: 80rpx;
-							margin-bottom: 30rpx;
-							display: flex;
-
-							.hs-card-phone-text {
-								flex: 1;
-								margin-left: 20rpx;
-								font-size: 20rpx;
-
-								:first-child {
-									font-size: 26rpx;
-									height: 40rpx;
-								}
-
-								:last-child {
-									height: 40rpx;
-								}
-							}
-						}
-
-						.hs-card-phone {
-							height: 40rpx;
-							margin-bottom: 20rpx;
-							display: flex;
-
-							.hs-card-phone-text {
-								flex: 1;
-								margin-left: 5rpx;
-								font-size: 12rpx;
-
-								:first-child {
-									font-size: 14rpx;
-									height: 20rpx;
-								}
-
-								:last-child {
-									height: 20rpx;
-								}
-							}
-						}
-					}
-
-					.hs-card-right {
-						width: 180rpx;
-						font-size: 20rpx;
-						line-height: 30rpx;
-					}
-				}
-			}
-
+			
 			.ad-content {
 				display: flex;
 
@@ -1219,6 +1065,116 @@
 					height: 30rpx;
 					line-height: 30rpx;
 				}
+			}
+		}
+		
+		
+		
+		.ad-view {
+			display: flex;
+			padding: 30rpx 10rpx;
+			border-bottom: 1px solid #ccc;
+		
+			.ad-detail {
+				flex: 1;
+				padding-left: 20rpx;
+		
+				:first-child {
+					height: 50rpx;
+					font-size: 30rpx;
+				}
+		
+				:last-child {
+					color: #999999;
+					font-size: 26rpx;
+				}
+			}
+		
+			.ad-button {
+				margin-top: 30rpx;
+				width: 120rpx;
+				height: 40rpx;
+				font-size: 26rpx;
+				border-radius: 40rpx;
+				border: 1px solid #FF0000;
+				color: #FF0000;
+				text-align: center;
+				line-height: 40rpx;
+			}
+		}
+		
+		.card-view {
+			padding: 30rpx 10rpx;
+			border-bottom: 1px solid #ccc;
+			position: relative;
+		
+			.card-view-body {
+				position: absolute;
+				top: 30rpx;
+				left: 10rpx;
+				width: 97%;
+				height: 300rpx;
+				box-sizing: border-box;
+				padding: 40rpx;
+				display: flex;
+				overflow: hidden;
+		
+				.card-view-left {
+					flex: 1;
+		
+					.card-view-name {
+						height: 80rpx;
+						margin-bottom: 30rpx;
+						display: flex;
+		
+						&>view {
+							flex: 1;
+							margin-left: 20rpx;
+							font-size: 20rpx;
+		
+							:first-child {
+								font-size: 26rpx;
+								height: 40rpx;
+							}
+						}
+					}
+		
+					.card-view-phone {
+						height: 40rpx;
+						margin-bottom: 20rpx;
+						display: flex;
+		
+						&>view {
+							flex: 1;
+							margin-left: 5rpx;
+							font-size: 12rpx;
+		
+							:first-child {
+								font-size: 14rpx;
+								height: 20rpx;
+							}
+						}
+					}
+				}
+		
+				.card-view-right {
+					width: 180rpx;
+					font-size: 20rpx;
+					line-height: 30rpx;
+				}
+			}
+		}
+		
+		.ad-bottom {
+			.ad-view {
+				border-bottom: 0;
+				border: 1px solid #ccc;
+				background-color: #fff;
+			}
+			.card-view {
+				border-bottom: 0;
+				border: 1px solid #ccc;
+				background-color: #fff;
 			}
 		}
 
@@ -1242,7 +1198,7 @@
 			left: 30rpx;
 			right: 30rpx;
 			bottom: -300rpx;
-			padding: 30rpx;
+			padding: 20rpx;
 			box-shadow: 0px 0px 10px #999;
 			background-color: #FFFFFF;
 			transition: bottom 0.5s;
@@ -1266,11 +1222,18 @@
 					padding-top: 30rpx;
 					font-size: 22rpx;
 					text-align: center;
-
+					display: flex;
+					flex-wrap: wrap;
+					align-content: center;
 					image {
-						width: 45rpx;
-						height: 45rpx;
+						width: 60rpx;
+						height: 60rpx;
+						margin: 0 auto;
 						margin-bottom: 10rpx;
+					}
+					view {
+						width: 100%;
+						text-align: center;
 					}
 				}
 			}
@@ -1335,32 +1298,34 @@
 				background-color: #fff;
 
 				.model-title {
-					padding: 20rpx 30rpx;
+					padding: 40rpx 30rpx 20rpx;
 					border-bottom: 1px solid #E8E8E8;
 					text-align: center;
-
+					font-weight: bold;
 					// height: 30rpx;
 					.model-subtitle {
 						font-size: 26rpx;
+						line-height: 50rpx;
 						color: #ccc;
 					}
 				}
 
 				.model-type-list {
 					height: 80rpx;
-					background-color: #DADADA;
+					background-color: rgb(236,236,236);
 					display: flex;
 
 					.type-view {
 						flex: 1;
-						margin-top: 10rpx;
-						height: 60rpx;
+						margin-top: 15rpx;
+						height: 50rpx;
 						text-align: center;
-						line-height: 60rpx;
+						line-height: 50rpx;
 
 						&.active {
-							background-color: #FF0000;
+							background-color: rgb(254,155,148);
 							color: #fff;
+							font-size: 28rpx;
 							border-radius: 30rpx;
 						}
 					}
@@ -1426,119 +1391,27 @@
 						}
 					}
 
-					.ad-view {
-						display: flex;
-						padding: 30rpx 10rpx;
-						border-bottom: 1px solid #ccc;
-
-						.ad-detail {
-							flex: 1;
-							padding-left: 20rpx;
-
-							:first-child {
-								height: 50rpx;
-								font-size: 30rpx;
-							}
-
-							:last-child {
-								color: #999999;
-								font-size: 26rpx;
-							}
-						}
-
-						.ad-button {
-							margin-top: 30rpx;
-							width: 120rpx;
-							height: 40rpx;
-							font-size: 26rpx;
-							border-radius: 40rpx;
-							border: 1px solid #FF0000;
-							color: #FF0000;
-							text-align: center;
-							line-height: 40rpx;
-						}
-					}
-
-					.card-view {
-						padding: 30rpx 10rpx;
-						border-bottom: 1px solid #ccc;
-						position: relative;
-
-						.card-view-body {
-							position: absolute;
-							top: 30rpx;
-							left: 10rpx;
-							width: 97%;
-							height: 300rpx;
-							box-sizing: border-box;
-							padding: 40rpx;
-							display: flex;
-							overflow: hidden;
-
-							.card-view-left {
-								flex: 1;
-
-								.card-view-name {
-									height: 80rpx;
-									margin-bottom: 30rpx;
-									display: flex;
-
-									&>view {
-										flex: 1;
-										margin-left: 20rpx;
-										font-size: 20rpx;
-
-										:first-child {
-											font-size: 26rpx;
-											height: 40rpx;
-										}
-									}
-								}
-
-								.card-view-phone {
-									height: 40rpx;
-									margin-bottom: 20rpx;
-									display: flex;
-
-									&>view {
-										flex: 1;
-										margin-left: 5rpx;
-										font-size: 12rpx;
-
-										:first-child {
-											font-size: 14rpx;
-											height: 20rpx;
-										}
-									}
-								}
-							}
-
-							.card-view-right {
-								width: 180rpx;
-								font-size: 20rpx;
-								line-height: 30rpx;
-							}
-						}
-					}
-
 					.model-loading {
 						text-align: center;
 						height: 40rpx;
 					}
 
 					.empty-ad {
-						margin-top: 100rpx;
-						font-size: 26rpx;
+						margin-top: 200rpx;
+						font-size: 24rpx;
 						text-align: center;
+						color: rgb(197,197,197);
 
 						& :last-child {
-							margin-top: 20rpx;
-							width: 240rpx;
-							border-radius: 20rpx;
-							font-size: 30rpx;
+							margin-top: 60rpx;
+							margin-bottom: 20rpx;
+							width: 180rpx;
+							line-height: 50rpx;
+							border-radius: 30rpx;
+							font-size: 26rpx;
 							display: inline-block;
 							color: #fff;
-							background: #00BFFF;
+							background: rgb(5,5,5);
 						}
 					}
 				}

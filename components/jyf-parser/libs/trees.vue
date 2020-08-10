@@ -16,7 +16,7 @@
 			<!--视频-->
 			<view v-else-if="((n.lazyLoad&&!n.attrs.autoplay)||(n.name=='video'&&!loadVideo))&&controls[i]==undefined" :id="n.attrs.id" :class="'_video '+(n.attrs.class||'')"
 			 :style="n.attrs.style" :data-i="i" @tap="_loadVideo" />
-			<video v-else-if="n.name=='video'" :id="n.attrs.id" :class="n.attrs.class" :style="n.attrs.style" :autoplay="n.attrs.autoplay||controls[i]==0"
+			<video class="video" v-else-if="n.name=='video'" :id="n.attrs.id" :class="n.attrs.class" :style="n.attrs.style" :autoplay="n.attrs.autoplay||controls[i]==0"
 			 :controls="!n.attrs.autoplay||n.attrs.controls" :loop="n.attrs.loop" :muted="n.attrs.muted" :poster="n.attrs.poster" :src="n.attrs.source[controls[i]||0]"
 			 :unit-id="n.attrs['unit-id']" :data-id="n.attrs.id" :data-i="i" data-source="video" @error="error" @play="play" />
 			<!--音频-->
@@ -74,10 +74,10 @@
 			<!--#endif-->
 			<!--富文本-->
 			<!--#ifdef MP-WEIXIN || MP-QQ || APP-PLUS-->
-			<rich-text v-else-if="handler.use(n)" :id="n.attrs.id" :class="'_p __'+n.name" :nodes="[n]" />
+			<rich-text v-else-if="handler.use(n)" :id="n.attrs.id" :class="'_p __'+n.name+' '+(n.attrs.class||'')" @tap="goodTap(n)"  :nodes="[n]" />
 			<!--#endif-->
 			<!--#ifndef MP-WEIXIN || MP-QQ || APP-PLUS-->
-			<rich-text v-else-if="!n.c" :id="n.attrs.id" :nodes="[n]" style="display:inline" />
+			<rich-text v-else-if="!n.c" :id="n.attrs.id" :class="(n.attrs.class||'')" :nodes="[n]" style="display:inline" />
 			<!--#endif-->
 			<!--#ifdef MP-ALIPAY-->
 			<view v-else :id="n.attrs.id" :class="'_'+n.name+' '+(n.attrs.class||'')" :style="n.attrs.style">
@@ -130,6 +130,20 @@
 		},
 		// #endif
 		methods: {
+			goodTap(e){
+				console.log(e);
+				console.log(e.attrs.url);
+				// uni.navigateTo({
+				// 	url:"/pages/goods/detail?seqId=621f72ef379d4bb7bc7d20e74dad874a&merchantShopId=0f8fc95b12524f5289067d6caebf172a"
+				// })
+				if(e.attrs.url){
+					let url=e.attrs.url
+					uni.navigateTo({
+						url:url
+					})
+				}
+			},
+			
 			init() {
 				for (var i = this.nodes.length, n; n = this.nodes[--i];) {
 					if (n.name == 'img') {
@@ -301,12 +315,15 @@
 	}
 </script>
 
-<style>
+<style lang="scss">
 	/* 在这里引入自定义样式 */
-
+	
 	/* 链接和图片效果 */
+	.video {
+		width: 100%;
+	}
 	._a {
-		display: inline;
+		display: inline-block;
 		padding: 1.5px 0 1.5px 0;
 		color: #366092;
 		word-break: break-all;

@@ -4,6 +4,7 @@
 		<navigator url="/pages/login/login" class="bg-btn">登录	</navigator>
 		
 		<navigator url="/pages/login/login" class="bg-btn" @tap="logout">退出登录	</navigator>
+		<navigator url="/pages/make_money/article_edit" class="bg-btn">原创编辑文章</navigator>
 		
 	</view>
 </template>

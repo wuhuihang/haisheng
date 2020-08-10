@@ -1,5 +1,5 @@
 <template>
-	<view class="box" id="box">
+	<view class="box" id="box" :class="{'box-hidden':!canvasFlag}">
 		<view :class="{'article-hidden':!article.articleContent}" v-if="is_login">
 			<view class="top-title font-bold">
 				{{article.articleTitle}}
@@ -16,7 +16,7 @@
 					{{article.issuedDate}}
 				</view>
 			</view>
-			<jyf-parser class="good-detail" :html="article.articleContent" lazy-load ref="article" selectable
+			<jyf-parser class="good-detail" :html="article.articleContent" @linkpress="linkpress" lazy-load ref="article" selectable
 			 show-with-animation use-anchor>加载中...</jyf-parser>
 			<!-- 底部浏览量 -->
 			<view class="copy-tips" v-if="article.articleSource!='OFFICIAL'">
@@ -55,21 +55,26 @@
 					</view>
 				</navigator>
 			</view>
+			<view class="ad-content">
+				<view class="ad-line"></view>
+				<view class="ad-text">广告</view>
+				<view class="ad-line"></view>
+			</view>
 			<view class="adver-box">
 				<view class="adver-sign">广告</view>
 				<!-- 默认官方广告 -->
-				<navigator url="/pages/index/area_new_people" v-if="cur_advert==6">
-					<image lazy-load class="plateform-ad" src="../../static/images/activity_banner.png" mode="aspectFill"></image>
+				<navigator url="/pages/index/area_new_people" v-if="cur_advert==0">
+					<image lazy-load class="plateform-ad" src="../../static/images/adver-default.png" mode="aspectFill"></image>
 				</navigator>
 				<!-- 图文广告 -->
-				<view class="advertise_display" v-if="cur_advert==1" @tap="copy(url)">
-					<image lazy-load class="img-box" src="/static/images/adver-pic-avatar.png" mode="aspectFill"></image>
+				<view class="advertise_display" v-if="cur_advert==1" @tap="copy(advert.advertisementLink,true)">
+					<image lazy-load class="img-box" :src="advert.advertisementPic" mode="aspectFill"></image>
 					<view class="right">
 						<view class="title text font-bold">
-							广告标题
+							{{advert.advertisementTitle}}
 						</view>
 						<view class="desc text">
-							广告简介广告简介广告简介这还少积分地方和吉
+							{{advert.advertisementSynopsis}}
 						</view>
 						<view class="tips">
 							推广
@@ -77,19 +82,19 @@
 					</view>
 				</view>
 				<!-- 图片广告 -->
-				<view class="advertise_display" v-if="cur_advert==2"  @tap="copy(url)">
-					<image lazy-load class="adver-img" src="/static/images/adver-pic-bg.png" mode=""></image>
+				<view class="advertise_display" v-if="cur_advert==2"  @tap="copy(advert.advertisementLink,true)">
+					<image lazy-load class="adver-img" :src="advert.advertisementPic" mode="aspectFill"></image>
 				</view>
 				<!-- 关注广告 -->
-				<view class="advertise_focus" v-if="cur_advert==3" @tap="adverPop(url)">
-					<image lazy-load class="img-box" src="/static/images/adver-pic-avatar.png" mode="aspectFill"></image>
+				<view class="advertise_focus" v-if="cur_advert==3" @tap="adverPop()">
+					<image lazy-load class="img-box" :src="advert.advertisementPic" mode="aspectFill"></image>
 					<view class="right">
 						<view class="l">
 							<view class="title text font-bold">
-								广告标题
+								{{advert.advertisementTitle}}
 							</view>
 							<view class="desc text">
-								广告简介
+								{{advert.advertisementExplain}}
 							</view>
 						</view>
 						<view class="tips">
@@ -98,15 +103,15 @@
 					</view>
 				</view>
 				<!-- 电话广告 -->
-				<view class="advertise_phone" v-if="cur_advert==4" @tap="callPhone(187)">
-					<image lazy-load class="img-box" src="/static/images/adver-pic-avatar.png" mode="aspectFill"></image>
+				<view class="advertise_phone" v-if="cur_advert==4" @tap="callPhone(advert.phone)">
+					<image lazy-load class="img-box" :src="advert.advertisementPic" mode="aspectFill"></image>
 					<view class="right">
 						<view class="l">
 							<view class="title text font-bold">
-								广告标题
+								{{advert.advertisementTitle}}
 							</view>
 							<view class="desc text">
-								有任何疑问请来电咨询
+								{{advert.advertisementExplain}}
 							</view>
 						</view>
 						<view class="tips">
@@ -116,29 +121,29 @@
 					</view>
 				</view>
 				<!-- 名片广告 -->
-				<view class="advertise_display_card" v-if="cur_advert==5" @tap="adverCard">
+				<view class="advertise_display_card" v-if="cur_advert==5" @tap="adverCard" :style="{backgroundImage:'url('+advert.backdropPic+')'}">
 					<view class="name-box">
-						<image lazy-load class="avatar" src="/static/images/adver-pic-avatar.png" mode="aspectFill"></image>
+						<image lazy-load class="avatar" :src="advert.advertisementPic" mode="aspectFill"></image>
 						<view class="name-text">
-							<view class="name"> 姓名</view>
+							<view class="name">{{advert.name}}</view>
 						</view>
 					</view>
 					<view class="phone-box">
 						<view class="left">
 							<view class="phone-line">
 								<text class="iconfont icondianhua"></text>
-								电话号码
+								{{advert.phone}}
 							</view>
 							<view class="phone-line">
 								<text class="iconfont iconweixin1"></text>
-								微信号
+								{{advert.weChatNum}}
 							</view>
 						</view>
 						<view class="right">
 							<view class="tips">
 								扫描二维码加我咨询
 							</view>
-							<image lazy-load class="adqrcode-img"  src="/static/images/adver-pic-avatar.png" mode="aspectFill"></image>
+							<image lazy-load class="adqrcode-img"  :src="advert.qrCode" mode="aspectFill"></image>
 						</view>
 					</view>
 				</view>
@@ -155,7 +160,7 @@
 		<!-- 我的分享二维码 -->
 		<canvas class="qrcode-canvas canvas-hidden" canvas-id="qrcode" />
 		<!-- 分享弹窗-->
-		<hchPoster ref="hchPoster" :canvasFlag.sync="canvasFlag" @cancel="canvasCancel" :posterObj.sync="posterData"/>
+		<hchPoster ref="hchPoster" :canvasFlag.sync="canvasFlag" @cancel="canvasCancel" :posterObj.sync="posterData" @saveposter="giveReward('SHARE')"/>
 		<view :hidden="canvasFlag"><!-- 海报 要放外面放组件里面 会找不到 canvas-->
 			<canvas class="canvas"  canvas-id="myCanvas" ></canvas><!-- 海报 -->
 		</view>
@@ -198,7 +203,14 @@
 			return {
 				is_login: true,
 				article: {},
-				cur_advert: 5,
+				cur_advert: "-1",
+				advert_map:{
+					"IMAGE_TEXT_ADVERTISEMENT":1,
+					"PICTURE_ADVERTISEMENT":2,
+					"FOLLOW_ADVERTISEMENT":3,
+					"TELEPHONE_ADVERTISEMENT":4,
+					"BUSINESS_CARD_ADVERTISEMENT":5
+				},
 				isPraise: false,
 				itemtitle: '',
 				itemprice: '',
@@ -213,7 +225,27 @@
 				canvasFlag: true,
 				posterData:{},
 				adpop_show:false,//广告弹框
-				ad_qrcode:""//广告弹框二维码
+				ad_qrcode:"",//广告弹框二维码
+				advert:{
+					advertisementExplain: "",
+					advertisementLink: null,
+					advertisementPic: "",
+					advertisementSynopsis: null,
+					advertisementTitle: "",
+					advertisementType: "",
+					backdropPic: null,
+					createBy: null,
+					customerName: "",
+					customerSeqId: "",
+					intactAdvertisement: null,
+					name: null,
+					phone: null,
+					qrCode: "",
+					remarks: null,
+					seqId: "",
+					updateBy: null,
+					weChatNum: null
+				}
 			}
 		},
 		computed: {
@@ -240,7 +272,9 @@
 				articleCode = option.articleCode? option.articleCode : ""; //分享人code
 				sharebtn = option.sharebtn ? option.sharebtn : ""; //文章列表点击分享跳过来
 			}
-			this.loadInfo()
+			
+			this.loadInfo();
+			
 		},
 		onShow() {
 			// #ifdef MP
@@ -258,7 +292,6 @@
 		},
 		// #ifdef MP
 		onShareAppMessage(res) {
-			this.giveReward('SHARE');
 			let path1='/pages/make_money/article_detail?seqId=' + seqId + '&offerRewardSeqId=' + offerRewardSeqId+'&articleCode='+this.user_state.shareCode;
 			if(!offerRewardSeqId&&popularizeSeqId){
 				path1='/pages/make_money/article_detail?seqId=' + seqId + '&popularizeSeqId=' + popularizeSeqId
@@ -271,15 +304,19 @@
 		},
 		// #endif
 		methods: {
+			linkpress(e) {
+				this.copy(e.href,true)
+			},
 			// 复制
 			copy(data,isUrl=false){
+				this.adverRecord(this.advert.seqId)
 				let self=this;
 				// #ifndef H5
 				uni.setClipboardData({
 				    data: data,
 				    success: function () {
 						uni.hideToast()//隐藏提示
-						let msg=isUrl?"链接复制成功，请打开浏览器查看":"微信号码复制成功，请打开微信添加"
+						let msg=isUrl?"链接复制成功，请将链接复制到浏览器查看":"微信号码复制成功，请打开微信添加"
 						self.$box.confirm(msg,false)
 				    }
 				});
@@ -287,6 +324,7 @@
 			},
 			// 打电话
 			callPhone(phone) {
+				this.adverRecord(this.advert.seqId)
 				let self=this;
 				uni.showModal({
 					content: "是否拨打电话 " + phone + "?",
@@ -307,25 +345,41 @@
 				})
 			},
 			// 广告弹出二维码
-			adverPop(img){
-				console.log('点击');
-				
+			adverPop(cardin=false){
+				if(!cardin){
+					// 名片广告就不再请求
+					this.adverRecord(this.advert.seqId)
+				}
+				this.adpop_show=true;
+				this.ad_qrcode=this.advert.qrCode
 			},
 			adverCard(){
+				this.adverRecord(this.advert.seqId)
 				let self=this;
 				uni.showActionSheet({
 					title: '',
 					itemList: ['打电话','添加微信','保存二维码'],
 					success: (e) => {
-						console.log(e);
 						if(e.tapIndex==0){
-							self.callPhone()
+							self.callPhone(self.advert.phone)
 						}else if(e.tapIndex==1){
-							self.copy()
+							self.copy(self.advert.weChatNum)
 						}else if(e.tapIndex==2){
-							self.adverPop()
+							self.ad_qrcode=self.advert.qrCode
+							self.adverPop(true)
 						}
 					}
+				})
+			},
+			// 广告点击统计
+			adverRecord(advertisementSeqId){
+				this.$api.get('/o2oAdvertisementRecord/statistic',{
+					params:{
+						customerSeqId:this.$common.getLocalSync('customerSeqId'),
+						advertisementSeqId:advertisementSeqId,
+						offerRewardSeqId:offerRewardSeqId,
+					}
+				}).then(res=>{
 				})
 			},
 			createCanvasImageEvn(){
@@ -347,12 +401,11 @@
 					this.$refs.hchPoster.createCanvasImage();//调用子组件的方法
 				},500)
 			},
+
 			// 取消海报
 			canvasCancel(val){
 				this.canvasFlag=val;
 			},
-			
-			
 			getData(){
 				customerSeqId =  this.$common.getLocalSync('customerSeqId') ;
 				// 手机登录用username
@@ -370,7 +423,6 @@
 				if(!offerRewardSeqId&&popularizeSeqId){
 					url=this.$webconfig.web_url+"/articleShare?seqId="+seqId+"&popularizeSeqId="+popularizeSeqId
 				}
-				console.log(url);
 				let width=uni.upx2px(240);
 				uQRCode.make({
 					canvasId: 'qrcode',
@@ -424,7 +476,7 @@
 			// 我要制作
 			edit() {
 				uni.navigateTo({
-					url: '/pages/make_money/article_edit?seqId=' + seqId + '&offerRewardSeqId=' + offerRewardSeqId
+					url: '/pages/make_money/article_edit?fromType=2&seqId=' + seqId + '&offerRewardSeqId=' + offerRewardSeqId
 				})
 			},
 			// 分享 阅读
@@ -465,7 +517,7 @@
 						this.article = data;
 						data.praiseNum = data.praiseNum == null ? 0 : data.praiseNum;
 						this.articlePic = this.article.articlePic;
-
+						this.getAdver(data.advertisementSeqId)
 						if (sharebtn) {
 							this.$nextTick(function() {
 								self.pageScrollToBottom()
@@ -473,6 +525,25 @@
 						}
 					}
 				})
+			},
+			getAdver(seqId){
+				if(seqId){
+					this.$api.get('/o2oAdvertisementSnapshot/getByPk',{
+						params:{
+							seqId:seqId
+						}
+					}).then(res=>{
+						if(res.code==200&&res.data!=null){
+							this.advert=res.data;
+							let advertisementType=res.data.advertisementType
+							this.cur_advert=this.advert_map[advertisementType]
+						}else {
+							this.cur_advert=0
+						}
+					})
+				}else{
+					this.cur_advert=0
+				}
 			},
 			// 滑动到最底部 方便分享
 			pageScrollToBottom: function() {
@@ -616,6 +687,11 @@
 </script>
 
 <style lang="scss">
+	// 防止页面滚动
+	.box-hidden{
+		height: calc(97vh - var(--window-top));
+		overflow: hidden;
+	}
 	.share-pro{
 	    display: flex;
 	    align-items: center;
@@ -797,7 +873,8 @@
 		flex-wrap: wrap;
 
 		.img {
-			width: 600rpx;
+			width: 500rpx;
+			height: 500rpx;
 		}
 
 		.tips {
@@ -1070,7 +1147,8 @@
 		width: 642rpx;
 		height: 360rpx;
 		padding: 20rpx 20rpx;
-		background: url('@/static/images/adver-card-bg.png') no-repeat;
+		background: url('@/static/images/adver-card-bg.png');
+		background-repeat: no-repeat;
 		background-size:cover;
 		background-position: center center; 
 	
@@ -1148,11 +1226,28 @@
 			}
 		}
 	}
-
+		.ad-content {
+			display: flex;
+			margin-top: 30rpx;
+			.ad-line {
+				flex: 1;
+				height: 14rpx;
+				border-bottom: 1px solid #ccc;
+			}
+		
+			.ad-text {
+				width: 100rpx;
+				font-size: 20rpx;
+				text-align: center;
+				height: 30rpx;
+				line-height: 30rpx;
+			}
+		}
 	.adver-box {
 		width: 100%;
 		margin-top: 40rpx;
 		position: relative;
+
 		.adver-sign {
 			position: absolute;
 			right: 30rpx;

@@ -288,7 +288,7 @@
 				</view>
 			</view>
 			<view class="bottom">
-				<view class="weirao" @tap="iconTap('/pages/write/article_edit?seqId=a9eac17820124c70b00bd09634f36a80&fromType=3')">
+				<view class="weirao" @tap="iconTap('/pages/member/article')">
 					<view class="iconfont iconwodewenzhang "></view>
 					<view class="text">我的文章</view>
 				</view>

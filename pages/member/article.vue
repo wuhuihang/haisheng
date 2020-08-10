@@ -143,7 +143,7 @@
 					})
 				}else {
 					uni.navigateTo({
-						url:'/pages/member/article_detail?seqId='+item.seqId
+						url:'/pages/member/article_detail?seqId='+item.seqId+'&offerRewardSeqId='+item.offerRewardSeqId
 					})
 				}
 			},
