@@ -131,8 +131,8 @@
 						<view class="good-view">
 							<image :src="item.mainPicUrl" mode="aspectFill"></image>
 							<view class="good-detail">
-								<view class="good-title">{{item.spuTitle2||''}}</view>
-								<view>{{item.logisticFee||0}}</view>
+								<view class="good-title">{{item.title||''}}</view>
+								<view>{{item.price||0}}</view>
 							</view>
 						</view>
 					</view>
@@ -391,11 +391,9 @@
 			}
 		},
 		onLoad(option) {
-			console.log(this)
 			this.fromType = option.fromType;
 			this.offerRewardSeqId = option.offerRewardSeqId;
 			const curTime = new Date();
-			console.log(this.fromType);
 			this.changeTime =
 				`${curTime.getFullYear()}-${('0'+(curTime.getMonth()+1)).slice(-2)}-${('0'+(curTime.getDate())).slice(-2)}`;
 			this.getUserInfo();
@@ -437,7 +435,7 @@
 							content = this.articleToList(virdom, content);
 						}
 						if(res.data.advertisementSeqId){
-							this.$api.get('/o2oMyAdvertisement/getByPk', {
+							this.$api.get('/o2oAdvertisementSnapshot/getByPk',{
 								params: {
 									seqId: res.data.advertisementSeqId,
 								}
@@ -462,7 +460,7 @@
 					if (curDom.name === 'img') {
 						content.push(`<img style="width:100%" src="${curDom.attrs.src}" referrerPolicy="no-referrer"></img>`);
 					} else if (curDom.name === 'video') {
-						content.push(`<video src="${curDom.attrs.src}" style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video>`);
+						content.push(`<video src="${curDom.attrs.src}" style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png" controls></video>`);
 					}
 					if(curDom.children){
 						if(curDom.children.length===1&&curDom.children[0].type==="text"){
@@ -570,7 +568,7 @@
 				let position = this.active;
 				const actions = new Map([
 					[/视频链接/, () => {
-						this.content.splice(this.active + 1, 0, `<video src="${this.modalValue}" style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video>`);
+						this.content.splice(this.active + 1, 0, `<video src="${this.modalValue}"  style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video>`);
 						this.showUploadVideo = false;
 					}],
 					[/插入链接/, () => {
@@ -637,11 +635,11 @@
 			selectGoodList(item) {
 				let content = ''
 				content =
-					`<div class="hs-goods" seqId="${item.seqId}" merchantSeqId="${item.merchantSeqId}">
+					`<div class="hs-goods" url="/pages/goods/detail?seqId=${item.spuSeqId}&merchantShopId=${item.merchantShopId}">
 								<div class="hs-image" style="background:url('${item.mainPicUrl}') no-repeat center center;background-size:cover;"></div>
 								<div class="hs-goods-detail" url="/pages/goods/detail?seqId=${item.spuSeqId}&merchantShopId=${item.merchantShopId}">
-									<div>${item.spuTitle2}</div>
-									<div>${item.logisticFee}</div>
+									<div>${item.title}</div>
+									<div>${item.price}</div>
 								</div>
 							</div>`;
 				this.content.splice(this.active + 1, 0, content);
@@ -651,17 +649,18 @@
 			getGoods() {
 				let _this = this;
 				this.isLoading = true;
-				// this.$api.get('/o2oSpu/findPageCusForPc', {
 				this.$api.get('/o2oMyArticle/findGoodsList', {
 					params: {
-						// user_seq_id: this.customerSeqId,
-						customerSeqId: this.customerSeqId,
-						// onSale: 'SALE',
+						// customerSeqId: this.customerSeqId,
+						customerSeqId: '9a666e88ecb04e99998242ac839cfa68',
 						pageno: this.pageno
 					}
 				}).then(res => {
-					let list = res.list||[];
-					_this.goodList = _this.goodList.concat(list);
+					if (res.list != null) {
+						let list = res.list
+						_this.goodList = _this.goodList.concat(list);
+					}
+				
 				}).finally(() => {
 					this.isLoading = false;
 				})
@@ -790,7 +789,7 @@
 										title: '上传成功！',
 										duration: 2000
 									});
-									self.content.splice(self.active + 1, 0, `<video src="${res.data.viewUrl}" style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video>`);
+									self.content.splice(self.active + 1, 0, `<video src="${res.data.viewUrl}" controls style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;"></video>`);
 									self.active = -1;
 								} else {
 									uni.showToast({
@@ -858,7 +857,6 @@
 								url: '/pages/make_money/issue_reward'
 							})
 						} else {
-							console.log(12);
 							uni.redirectTo({
 								url: "/pages/member/article_detail?seqId=" + data.seqId
 							})
@@ -1200,7 +1198,7 @@
 			left: 30rpx;
 			right: 30rpx;
 			bottom: -300rpx;
-			padding: 30rpx;
+			padding: 20rpx;
 			box-shadow: 0px 0px 10px #999;
 			background-color: #FFFFFF;
 			transition: bottom 0.5s;
@@ -1224,11 +1222,18 @@
 					padding-top: 30rpx;
 					font-size: 22rpx;
 					text-align: center;
-
+					display: flex;
+					flex-wrap: wrap;
+					align-content: center;
 					image {
-						width: 45rpx;
-						height: 45rpx;
+						width: 60rpx;
+						height: 60rpx;
+						margin: 0 auto;
 						margin-bottom: 10rpx;
+					}
+					view {
+						width: 100%;
+						text-align: center;
 					}
 				}
 			}
