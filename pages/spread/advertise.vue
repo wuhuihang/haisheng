@@ -6,9 +6,9 @@
 		</view>
 		<view class="platfrom">支持今日头条、天天快报、官网http开头的、微信公众平台</view>
 		<view class="article-btn">
-			<navigator hover-class="none" :url="'/pages/make_money/article_edit?fromType=5&url='+article_url" class="btn-l btn">
-				生成我的广告文章
-			</navigator>
+		<view @tap="getUrlArticle" url="/pages/make_money/article_edit" class="btn-l btn">
+			生成我的广告文章
+		</view>
 			<navigator hover-class="none" url="/pages/make_money/article_edit" class="btn-r btn">
 				我要原创
 			</navigator>
@@ -100,10 +100,14 @@
 			getUrlArticle(){
 				this.$api.get('/o2oMyArticle/getHtmlByUrl',{
 					params:{
-						url:this.article_url
+						url:this.article_url,
+						customerSeqId:this.$common.getLocalSync('customerSeqId')
 					}
 				}).then(res=>{
 					if(res.code==200){
+						uni.navigateTo({
+							url:'/pages/make_money/article_edit?fromType=5&seqId='+res.data
+						})
 					}
 				})
 			},

@@ -18,7 +18,7 @@
 		<view class="content">
 			<view v-for="(item,index) in content" :ref="'content'+index" :class="{'active':active===index}" :key="index" @click="selectEdit(index)">
 				<view v-if="/^<video([\s\S]*)<\/video>$/.test(item)">			
-					<image src="/static/images/write/videodefault.png" style="width: 100%;height:277rpx;" mode="aspectFill"></image>
+					<image :src="cloudUrl+'/videodefault.png'" style="width: 100%;height:277rpx;" mode="aspectFill"></image>
 					<!-- <video :src='item.match(/src="([\s\S]*?)"/)[1]' style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video> -->
 				</view>
 				<view v-html="item" v-else></view>
@@ -377,11 +377,12 @@
 				],
 				adContent: {
 					advertisementType: "PICTURE_ADVERTISEMENT",
-					advertisementPic: "/static/images/write/defaultad.png"
+					advertisementPic: this.$webconfig.cloud_url+"/mall/img/defaultad.png"
 				},
 				customerSeqId: this.$common.getLocalSync('customerSeqId'),
 				fromType: 1, //1原创 2别人文章制作 3我的文章再编辑 4审核失败再编辑 5url进入
-				offerRewardSeqId: "" //悬赏id
+				offerRewardSeqId: "" ,//悬赏id
+				cloudUrl:this.$webconfig.cloud_url+'/mall/img'
 			}
 		},
 		watch: {
@@ -396,9 +397,10 @@
 			const curTime = new Date();
 			this.changeTime =
 				`${curTime.getFullYear()}-${('0'+(curTime.getMonth()+1)).slice(-2)}-${('0'+(curTime.getDate())).slice(-2)}`;
-			this.getUserInfo();
+			
+			let url="https://kan.china.com/qd/firefox/article/861638.html";
 			// 判断是否是修改页面
-			if (this.fromType == 3 || this.fromType == 4) {
+			if (this.fromType == 3 || this.fromType == 4 || this.fromType == 5) {
 				// 获取文章详情
 				this.reEdit(option.seqId)
 			} else if (this.fromType == 2) {
@@ -442,7 +444,7 @@
 							}).then(res => {
 								this.adContent = res.data || {
 									advertisementType: "PICTURE_ADVERTISEMENT",
-									advertisementPic: "/static/images/write/defaultad.png"
+									advertisementPic: this.cloudUrl+"/defaultad.png"
 								}
 							})
 						}
@@ -460,11 +462,11 @@
 					if (curDom.name === 'img') {
 						content.push(`<img style="width:100%" src="${curDom.attrs.src}" referrerPolicy="no-referrer"></img>`);
 					} else if (curDom.name === 'video') {
-						content.push(`<video src="${curDom.attrs.src}" style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png" controls></video>`);
+						content.push(`<video src="${curDom.attrs.src}" style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="${this.cloudUrl}/videodefault.png" controls></video>`);
 					} else if (curDom.type === 'text') {
 						content.push(`<div class="hs-text">${curDom.text}</div>`);
 					}
-					if(curDom.children){
+					if(curDom.children && curDom.children.length>0){
 						if(curDom.children.length===1&&curDom.children[0].type==="text"){
 							let style = '';
 							if(curDom.attrs&&curDom.attrs.style) {
@@ -472,13 +474,59 @@
 							}
 							content.push(`<div class="hs-text"${style}>${curDom.children[0].text}</div>`);
 						} else {
-							content = this.articleToList(curDom.children,content);
+							if(curDom.children.every((dom)=>{
+								return (dom.name === 'span' || dom.name === 'strong' || dom.name === 'br' || dom.type === 'text');
+							})){
+								let style = '';
+								if(curDom.attrs&&curDom.attrs.style) {
+									style=` style="${curDom.attrs.style}"`
+								}
+								content.push(`<div class="out-text">${this.virdom2domstr(curDom,'')}</div>`);
+							} else {
+								content = this.articleToList(curDom.children,content);
+							}
 						}
 					}
 				}
 				return content;
 			},
-
+			
+			virdom2domstr(curDom, str) {
+				let name =  curDom.name;
+				let style = '';
+				let src = '';
+				if(curDom.attrs) {
+					curDom.attrs.style && (style=` style="${curDom.attrs.style}"`)
+					curDom.attrs.src && (src=` src="${curDom.attrs.src}"`)
+				}
+				if(curDom.type === 'text'){
+					str += curDom.text;
+				} else if (curDom.children&&curDom.children.length>0) {
+					let childrenStr = ''
+					curDom.children.forEach((item)=>{
+						childrenStr += this.virdom2domstr(item, '')
+					})			
+					str += `<${name}${style}${src}>${childrenStr}</${name}>`;
+				} else{
+					if(name==='br'){
+						str+='<br/>'
+					}else{
+						str += `<${name}${style}${src}></${name}>`;
+					}
+				}
+				return str
+			},
+			dom2span(virdom, span) {
+				for(let i=0;i<virdom.length;i++){
+					let curDom = virdom[i];
+					if (curDom.type === 'text') {
+						span+=curDom.text;
+					}else if(curDom.children&&curDom.children.length>0) {		
+						span = this.dom2span(curDom.children, span);
+					}
+				}
+				return span;
+			},
 
 			inputChange(event) {
 				this.isHidePlaceholder = event.detail.cursor > 0
@@ -492,6 +540,7 @@
 					[/^(<a href=".*">)?<img/, 'img'],
 					[/^<video/, 'video'],
 					[/^(<a href=".*">)?<div class="hs-text"/, 'text'],
+					[/^<div class="out-text"/, 'text'], // 外部文章
 					[/^<div class="hs-good"/, 'good'],
 				]);
 				const contentTypeArr = [...contentTypeMap].filter(([key, value]) => (key.test(curContent)));
@@ -544,18 +593,27 @@
 						this.textAlign = 'left';
 					}],
 					[/modifySection/, () => { // 修改文本需要设置样式及文本
-						const arrs = curContent.match(/^(<a href="(.*?)"([^>]*)?>)?<div class="hs-text".+?>/);
-						const color = curContent.match(/[^-]color:([^;]+);/);
-						const weight = curContent.match(/font-weight:([^;]+);/);
-						const size = curContent.match(/font-size:([^;]+);/);
-						const align = curContent.match(/text-align:([^;]+);/);
-						this.hasHref = arrs[2] ? arrs[2] : '';
-						this.modalValue = curContent.replace(/^(<a href=".*">)?<div class="hs-text".+?>/g, "").replace(
-							/<\/div>(<\/a>)?$/g, "").replace(/<br\/>/g, '\n'); // 去掉首尾div标签
-						this.fontColor = color ? color[1] : '#000';
-						this.fontWeight = weight ? weight[1] : 'normal';
-						this.fontSize = size ? size[1] : '14px';
-						this.textAlign = align ? align[1] : 'left';
+						if(/^<div class="out-text"/.test(curContent)) { //外部文章
+							this.fontWeight = 'normal';
+							this.fontColor = '#000';
+							this.fontSize = '14px';
+							this.textAlign = 'left';
+							let virdom = new Parser(curContent, this).parse();
+							this.modalValue = this.dom2span(virdom, '');
+						} else {
+							const arrs = curContent.match(/^(<a href="(.*?)"([^>]*)?>)?<div class="hs-text".+?>/);
+							const color = curContent.match(/[^-]color:([^;]+);/);
+							const weight = curContent.match(/font-weight:([^;]+);/);
+							const size = curContent.match(/font-size:([^;]+);/);
+							const align = curContent.match(/text-align:([^;]+);/);
+							this.hasHref = arrs[2] ? arrs[2] : '';
+							this.modalValue = curContent.replace(/^(<a href=".*">)?<div class="hs-text".+?>/g, "").replace(
+								/<\/div>(<\/a>)?$/g, "").replace(/<br\/>/g, '\n'); // 去掉首尾div标签
+							this.fontColor = color ? color[1] : '#000';
+							this.fontWeight = weight ? weight[1] : 'normal';
+							this.fontSize = size ? size[1] : '14px';
+							this.textAlign = align ? align[1] : 'left';
+						}
 					}],
 					[/.*/, () => { // 展示弹框
 						this.showModal = true;
@@ -570,7 +628,7 @@
 				let position = this.active;
 				const actions = new Map([
 					[/视频链接/, () => {
-						this.content.splice(this.active + 1, 0, `<video src="${this.modalValue}"  style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video>`);
+						this.content.splice(this.active + 1, 0, `<video src="${this.modalValue}"  style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="${this.cloudUrl}/videodefault.png"></video>`);
 						this.showUploadVideo = false;
 					}],
 					[/插入链接/, () => {
