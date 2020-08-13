@@ -29,51 +29,84 @@
 				<view class="ad-line"></view>
 			</view>
 			<view class="ad-bottom" @click="showAdListModel()">
-				<view class="ad-view" v-if="['IMAGE_TEXT_ADVERTISEMENT','FOLLOW_ADVERTISEMENT','TELEPHONE_ADVERTISEMENT'].includes(adContent['advertisementType'])">
-					<image style="width: 120rpx;height: 120rpx;border-radius: 60rpx;" :src="adContent.advertisementPic" mode="aspectFill"></image>
-					<view class="ad-detail">
-						<view>{{adContent.advertisementTitle}}</view>
-						<view>{{adContent.advertisementSynopsis||adContent.advertisementExplain}}</view>
-					</view>
-					<view class="ad-button" v-if="adContent['advertisementType']==='FOLLOW_ADVERTISEMENT'">
-						+关注
-					</view>
-					<view class="ad-button" v-if="adContent['advertisementType']==='TELEPHONE_ADVERTISEMENT'">
-						拨打
+				
+				<view class="advertise_display" v-if="adContent['advertisementType']==='IMAGE_TEXT_ADVERTISEMENT'">
+					<image lazy-load class="img-box" :src="adContent.advertisementPic" mode="aspectFill"></image>
+					<view class="right">
+						<view class="title text font-bold">
+							{{adContent.advertisementTitle}}
+						</view>
+						<view class="desc text">
+							{{adContent.advertisementSynopsis}}
+						</view>
+						<view class="tips">
+							推广
+						</view>
 					</view>
 				</view>
-				<view class="ad-view" v-else-if="adContent['advertisementType']==='PICTURE_ADVERTISEMENT'">
-					<image style="width:100%;height:200rpx;border-radius:0;" :src="adContent.advertisementPic" mode="aspectFill"></image>
-				</view>
-				<view class="card-view" v-else-if="adContent['advertisementType']==='BUSINESS_CARD_ADVERTISEMENT'">
-					<image style="width:100%;height:300rpx;" :src="adContent.backdropPic" mode="aspectFill"></image>
-					<view class="card-view-body">
-						<view class="card-view-left">
-							<view class="card-view-name">
-								<image style="width:80rpx;height:80rpx;border-radius: 40rpx;" mode="aspectFill" :src="adContent.advertisementPic"></image>
-								<view>
-									<view>{{adContent.name}}</view>
-									<view>Name</view>
-								</view>
+				
+				<view class="advertise_focus" v-if="adContent['advertisementType']==='FOLLOW_ADVERTISEMENT'">
+					<image lazy-load class="img-box" :src="adContent.advertisementPic" mode="aspectFill"></image>
+					<view class="right">
+						<view class="l">
+							<view class="title text font-bold">
+								{{adContent.advertisementTitle}}
 							</view>
-							<view class="card-view-phone">
-								<image style="width:40rpx;height:40rpx;" mode="aspectFill" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644677256rs6c.png"></image>
-								<view>
-									<view>{{adContent.phone}}</view>
-									<view>Tellphone Number</view>
-								</view>
-							</view>
-							<view class="card-view-phone">
-								<image style="width:40rpx;height:40rpx;" mode="aspectFill" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644677256rs6c.png"></image>
-								<view>
-									<view>{{adContent.weChatNum}}</view>
-									<view>Wei Xin</view>
-								</view>
+							<view class="desc text">
+								{{adContent.advertisementExplain}}
 							</view>
 						</view>
-						<view class="card-view-right">
-							<image style="width:100%;height:180rpx;" mode="aspectFill" :src="adContent.qrCode"></image>
-							<view>长按二维码加我咨询</view>
+						<view class="tips">
+							+关注
+						</view>
+					</view>
+				</view>
+				
+				<view class="advertise_phone" v-if="adContent['advertisementType']==='TELEPHONE_ADVERTISEMENT'">
+					<image lazy-load class="img-box" :src="adContent.advertisementPic" mode="aspectFill"></image>
+					<view class="right">
+						<view class="l">
+							<view class="title text font-bold">
+								{{adContent.advertisementTitle}}
+							</view>
+							<view class="desc text">
+								{{adContent.advertisementExplain}}
+							</view>
+						</view>
+						<view class="tips">
+							<view class="iconfont icondianhua"></view>
+							拨打
+						</view>
+					</view>
+				</view>
+				
+				<view class="advertise_display" v-else-if="adContent['advertisementType']==='PICTURE_ADVERTISEMENT'">
+					<image lazy-load class="adver-img" :src="adContent.advertisementPic" mode="aspectFill"></image>
+				</view>
+				
+				<view class="advertise_display_card" v-else-if="adContent['advertisementType']==='BUSINESS_CARD_ADVERTISEMENT'" :style="{backgroundImage:'url('+adContent.backdropPic+')'}">
+					<view class="name-box">
+						<image lazy-load class="avatar" :src="adContent.advertisementPic" mode="aspectFill"></image>
+						<view class="name-text">
+							<view class="name">{{adContent.name}}</view>
+						</view>
+					</view>
+					<view class="phone-box">
+						<view class="left">
+							<view class="phone-line">
+								<text class="iconfont icondianhua"></text>
+								{{adContent.phone}}
+							</view>
+							<view class="phone-line">
+								<text class="iconfont iconweixin1"></text>
+								{{adContent.weChatNum}}
+							</view>
+						</view>
+						<view class="right">
+							<view class="tips">
+								扫描二维码加我咨询
+							</view>
+							<image lazy-load class="adqrcode-img"  :src="adContent.qrCode" mode="aspectFill"></image>
 						</view>
 					</view>
 				</view>
@@ -160,56 +193,88 @@
 						<view>制作一次广告，可随时使用</view>
 						<navigator url="/pages/spread/advertise_make">前往制作</navigator>
 					</view>
-					<view v-else-if="['图文','关注','电话'].includes(adObj[advertisementType])">
-						<view class="ad-view" v-for="(ad,index) in adList" :key="index" @click="selectAdList(ad)">
-							<image style="width: 120rpx;height: 120rpx;border-radius: 60rpx;" :src="ad.advertisementPic" mode="aspectFill"></image>
-							<view class="ad-detail">
-								<view>{{ad.advertisementTitle}}</view>
-								<view>{{ad.advertisementSynopsis||ad.advertisementExplain}}</view>
-							</view>
-							<view class="ad-button" v-if="adObj[advertisementType]==='关注'">
-								+关注
-							</view>
-							<view class="ad-button" v-if="adObj[advertisementType]==='电话'">
-								拨打
+					<view v-else-if="adObj[advertisementType]==='图文'">
+						<view class="advertise_display" v-for="(ad,index) in adList" :key="index" @click="selectAdList(ad)">
+							<image lazy-load class="img-box" :src="ad.advertisementPic" mode="aspectFill"></image>
+							<view class="right">
+								<view class="title text font-bold">
+									{{ad.advertisementTitle}}
+								</view>
+								<view class="desc text">
+									{{ad.advertisementSynopsis}}
+								</view>
+								<view class="tips">
+									推广
+								</view>
 							</view>
 						</view>
 					</view>
 					<view v-else-if="adObj[advertisementType]==='图片'">
-						<view class="ad-view" v-for="(ad,index) in adList" :key="index" @click="selectAdList(ad)">
-							<image style="width:100%;height:200rpx;border-radius:0;" :src="ad.advertisementPic" mode="aspectFill"></image>
+						<view class="advertise_display" v-for="(ad,index) in adList" :key="index" @click="selectAdList(ad)">
+							<image lazy-load class="adver-img" :src="ad.advertisementPic" mode="aspectFill"></image>
+						</view>
+					</view>
+					<view v-else-if="adObj[advertisementType]==='关注'">
+						<view class="advertise_focus" v-for="(ad,index) in adList" :key="index" @click="selectAdList(ad)">
+							<image lazy-load class="img-box" :src="ad.advertisementPic" mode="aspectFill"></image>
+							<view class="right">
+								<view class="l">
+									<view class="title text font-bold">
+										{{ad.advertisementTitle}}
+									</view>
+									<view class="desc text">
+										{{ad.advertisementExplain}}
+									</view>
+								</view>
+								<view class="tips">
+									+关注
+								</view>
+							</view>
+						</view>
+					</view>
+					<view v-else-if="adObj[advertisementType]==='电话'">
+						<view class="advertise_phone" v-for="(ad,index) in adList" :key="index" @click="selectAdList(ad)">
+							<image lazy-load class="img-box" :src="ad.advertisementPic" mode="aspectFill"></image>
+							<view class="right">
+								<view class="l">
+									<view class="title text font-bold">
+										{{ad.advertisementTitle}}
+									</view>
+									<view class="desc text">
+										{{ad.advertisementExplain}}
+									</view>
+								</view>
+								<view class="tips">
+									<view class="iconfont icondianhua"></view>
+									拨打
+								</view>
+							</view>
 						</view>
 					</view>
 					<view v-else-if="adObj[advertisementType]==='名片'">
-						<view class="card-view" v-for="(ad,index) in adList" :key="index" @click="selectAdList(ad)">
-							<image style="width:100%;height:300rpx;" :src="ad.backdropPic" mode="aspectFill"></image>
-							<view class="card-view-body">
-								<view class="card-view-left">
-									<view class="card-view-name">
-										<image style="width:80rpx;height:80rpx;border-radius: 40rpx;" mode="aspectFill" :src="ad.advertisementPic"></image>
-										<view>
-											<view>{{ad.name}}</view>
-											<view>Name</view>
-										</view>
+						<view class="advertise_display_card" v-for="(ad,index) in adList" :key="index" @click="selectAdList(ad)" :style="{backgroundImage:'url('+ad.backdropPic+')'}">
+							<view class="name-box">
+								<image lazy-load class="avatar" :src="ad.advertisementPic" mode="aspectFill"></image>
+								<view class="name-text">
+									<view class="name">{{ad.name}}</view>
+								</view>
+							</view>
+							<view class="phone-box">
+								<view class="left">
+									<view class="phone-line">
+										<text class="iconfont icondianhua"></text>
+										{{ad.phone}}
 									</view>
-									<view class="card-view-phone">
-										<image style="width:40rpx;height:40rpx;" mode="aspectFill" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644677256rs6c.png"></image>
-										<view>
-											<view>{{ad.phone}}</view>
-											<view>Tellphone Number</view>
-										</view>
-									</view>
-									<view class="card-view-phone">
-										<image style="width:40rpx;height:40rpx;" mode="aspectFill" src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200806/app_1596644677256rs6c.png"></image>
-										<view>
-											<view>{{ad.weChatNum}}</view>
-											<view>Wei Xin</view>
-										</view>
+									<view class="phone-line">
+										<text class="iconfont iconweixin1"></text>
+										{{ad.weChatNum}}
 									</view>
 								</view>
-								<view class="card-view-right">
-									<image style="width:100%;height:180rpx;" mode="aspectFill" :src="ad.qrCode"></image>
-									<view>长按二维码加我咨询</view>
+								<view class="right">
+									<view class="tips">
+										扫描二维码加我咨询
+									</view>
+									<image lazy-load class="adqrcode-img"  :src="ad.qrCode" mode="aspectFill"></image>
 								</view>
 							</view>
 						</view>
@@ -1111,7 +1176,7 @@
 			
 			.ad-content {
 				display: flex;
-
+				margin-top: 80rpx;
 				.ad-line {
 					flex: 1;
 					height: 14rpx;
@@ -1127,117 +1192,316 @@
 				}
 			}
 		}
-		
-		
-		
-		.ad-view {
-			display: flex;
-			padding: 30rpx 10rpx;
-			border-bottom: 1px solid #ccc;
-		
-			.ad-detail {
-				flex: 1;
-				padding-left: 20rpx;
-		
-				:first-child {
-					height: 50rpx;
-					font-size: 30rpx;
-				}
-		
-				:last-child {
-					color: #999999;
-					font-size: 26rpx;
-				}
-			}
-		
-			.ad-button {
-				margin-top: 30rpx;
-				width: 120rpx;
-				height: 40rpx;
-				font-size: 26rpx;
-				border-radius: 40rpx;
-				border: 1px solid #FF0000;
-				color: #FF0000;
-				text-align: center;
-				line-height: 40rpx;
-			}
-		}
-		
-		.card-view {
-			padding: 30rpx 10rpx;
-			border-bottom: 1px solid #ccc;
-			position: relative;
-		
-			.card-view-body {
-				position: absolute;
-				top: 30rpx;
-				left: 10rpx;
-				width: 97%;
-				height: 300rpx;
-				box-sizing: border-box;
-				padding: 40rpx;
+
+		.advertise_display {
 				display: flex;
-				overflow: hidden;
+				justify-content: space-between;
+				align-items: flex-start;
+				background: #fff;
+				padding: 20rpx 0;
+				border-radius: 10rpx;	
+				border-bottom: 1px solid #ccc;
+				
+				.img-box {
+					width: 160rpx;
+					height: 160rpx;
+					flex-shrink: 0;
+					margin-right: 40rpx;
+				}
 		
-				.card-view-left {
-					flex: 1;
+				.right {
+					flex-grow: 1;
+					height: 124rpx;
+					display: flex;
+					flex-wrap: wrap;
+					align-content: flex-start;
+					position: relative;
 		
-					.card-view-name {
-						height: 80rpx;
-						margin-bottom: 30rpx;
-						display: flex;
-		
-						&>view {
-							flex: 1;
-							margin-left: 20rpx;
-							font-size: 20rpx;
-		
-							:first-child {
-								font-size: 26rpx;
-								height: 40rpx;
-							}
-						}
+					.text {
+						width: 100%;
+						font-size: 26rpx;
 					}
 		
-					.card-view-phone {
-						height: 40rpx;
-						margin-bottom: 20rpx;
-						display: flex;
+					.title {
+						height: 50rpx;
+						line-height: 50rpx;
+						overflow: hidden;
+						white-space: nowrap;
+						text-overflow: ellipsis;
+						margin-top: -10rpx;
+					}
 		
-						&>view {
-							flex: 1;
-							margin-left: 5rpx;
-							font-size: 12rpx;
+					.desc {
+						height: 64rpx;
+						color: #666666;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						display: -webkit-box;
+						-webkit-line-clamp: 2;
+						-webkit-box-orient: vertical;
+					}
 		
-							:first-child {
-								font-size: 14rpx;
-								height: 20rpx;
-							}
-						}
+					.tips {
+						position: absolute;
+						right: 0;
+						bottom: -36rpx;
+						width: 80rpx;
+						height: 36rpx;
+						border: 2px solid rgba(245, 90, 77, 1);
+						border-radius: 4rpx;
+						color: #F55A4D;
+						font-size: 26rpx;
+						text-align: center;
+						line-height: 36rpx;
 					}
 				}
 		
-				.card-view-right {
-					width: 180rpx;
+				.adver-img {
+					width: 100%;
+					height: 200rpx;
+				}
+			}
+		
+		// 关注广告
+		.advertise_focus {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				background: #fff;
+				padding: 20rpx 0;
+				border-radius: 10rpx;
+				border-bottom: 1px solid #ccc;
+				.img-box {
+					width: 160rpx;
+					height: 160rpx;
+					flex-shrink: 0;
+					margin-right: 40rpx;
+					border-radius: 100%;
+				}
+		
+				.right {
+					flex-grow: 1;
+					height: 124rpx;
+					height: 160rpx;
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+		
+					.l {
+						height: 120rpx;
+						display: flex;
+						align-content: space-between;
+						flex-wrap: wrap;
+					}
+		
+					.text {
+						width: 100%;
+						font-size: 26rpx;
+					}
+		
+					.title {
+						height: 50rpx;
+						line-height: 50rpx;
+						overflow: hidden;
+						white-space: nowrap;
+						text-overflow: ellipsis;
+						margin-top: -10rpx;
+					}
+		
+					.desc {
+						color: #666666;
+						overflow: hidden;
+					}
+		
+					.tips {
+						width: 98rpx;
+						height: 46rpx;
+						line-height: 46rpx;
+						border: 2rpx solid rgba(245, 90, 77, 1);
+						border-radius: 22rpx;
+						color: #F55A4D;
+						text-align: center;
+						font-size: 26rpx;
+					}
+				}
+			}
+		
+		// 电话广告
+		.advertise_phone {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				background: #fff;
+				padding: 20rpx 0;
+				border-radius: 10rpx;
+				border-bottom: 1px solid #ccc;
+		
+				.img-box {
+					width: 160rpx;
+					height: 160rpx;
+					flex-shrink: 0;
+					margin-right: 40rpx;
+					border-radius: 100%;
+				}
+		
+				.right {
+					flex-grow: 1;
+					height: 124rpx;
+					height: 160rpx;
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+		
+					.l {
+						height: 120rpx;
+						display: flex;
+						align-content: space-between;
+						flex-wrap: wrap;
+					}
+		
+					.text {
+						width: 100%;
+						font-size: 26rpx;
+					}
+		
+					.title {
+						height: 50rpx;
+						line-height: 50rpx;
+						overflow: hidden;
+						white-space: nowrap;
+						text-overflow: ellipsis;
+						margin-top: -10rpx;
+					}
+		
+					.desc {
+						color: #666666;
+						overflow: hidden;
+					}
+		
+					.tips {
+						width: 98rpx;
+						height: 46rpx;
+						line-height: 46rpx;
+						border: 2rpx solid rgba(245, 90, 77, 1);
+						border-radius: 22rpx;
+						color: #F55A4D;
+						text-align: center;
+						font-size: 26rpx;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+		
+						.iconfont {
+							font-size: 20rpx;
+							margin-right: 2rpx;
+						}
+					}
+				}
+			}
+		
+		.advertise_display_card {
+			display: flex;
+			justify-content: space-between;
+			flex-wrap: wrap;
+			align-items: center;
+			background: #fff;
+			border-radius: 10rpx;
+			width:100%;
+			// height: 360rpx;
+			padding: 20rpx 20rpx;
+			background: url('@/static/images/adver-card-bg.png');
+			background-repeat: no-repeat;
+			background-size:cover;
+			background-position: center center; 
+			box-sizing: border-box;
+			border-bottom: 1px solid #ccc;
+			margin-top: 20rpx;
+			.name-box {
+				width: 100%;
+				display: flex;
+				align-items: center;
+				font-size: 26rpx;
+		
+				.avatar {
+					width: 124rpx;
+					height: 124rpx;
+					background: rgba(255, 255, 255, 1);
+					border-radius: 50%;
+					margin-right: 20rpx;
+				}
+		
+				.name-text {
+					display: flex;
+					align-content: space-between;
+					flex-wrap: wrap;
+		
+					.name {
+						width: 100%;
+						font-size: 36rpx;
+						font-weight: bold;
+					}
+				}
+			}
+		
+			.phone-box {
+				width: 100%;
+				margin-top: 10rpx;
+				display: flex;
+				justify-content: space-between;
+		
+				.left {
+					margin-top: 50rpx;
+		
+					.phone-line {
+						.iconfont {
+							display: inline-block;
+							width: 48rpx;
+							height: 48rpx;
+							text-align: center;
+							line-height: 48rpx;
+							border-radius: 100%;
+							background: rgba(51, 51, 51, 1);
+							font-size: 30rpx;
+							color: white;
+							margin-right: 20rpx;
+							font-weight: normal;
+						}
+		
+						font-size:26rpx;
+						font-weight: bold;
+						margin-bottom: 38rpx;
+					}
+				}
+		
+				.right {
+					width: 200rpx;
+					flex-shrink: 0;
 					font-size: 20rpx;
-					line-height: 30rpx;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+		
+					.adqrcode-img {
+						width: 186rpx;
+						height: 186rpx;
+						margin-top: 15rpx;
+					}
 				}
 			}
 		}
 		
 		.ad-bottom {
-			.ad-view {
-				border-bottom: 0;
-				border: 1px solid #ccc;
-				background-color: #fff;
+			.advertise_display {
+				padding: 20rpx 30rpx;
 			}
-			.card-view {
-				border-bottom: 0;
-				border: 1px solid #ccc;
-				background-color: #fff;
+			.advertise_focus {
+				padding: 20rpx 30rpx;
+			}
+			.advertise_phone {
+				padding: 20rpx 30rpx;
 			}
 		}
-
+		
 		.close {
 			width: 50rpx;
 			height: 50rpx;
@@ -1408,7 +1672,7 @@
 				}
 
 				.model-content {
-					max-height: 500rpx;
+					max-height: 600rpx;
 					width: 100%;
 					box-sizing: border-box;
 					overflow: auto;

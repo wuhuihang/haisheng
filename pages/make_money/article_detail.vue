@@ -1,6 +1,6 @@
 <template>
-	<view class="box" id="box" :class="{'box-hidden':!canvasFlag}">
-		<view :class="{'article-hidden':!article.articleContent}" v-if="is_login">
+	<view class="box" id="box">
+		<view :class="{'article-hidden':!article.articleContent}">
 			<view class="top-title font-bold">
 				{{article.articleTitle}}
 			</view>
@@ -19,42 +19,9 @@
 			<jyf-parser class="good-detail" :html="article.articleContent" @linkpress="linkpress" lazy-load ref="article" selectable
 			 show-with-animation use-anchor>加载中...</jyf-parser>
 			<!-- 底部浏览量 -->
-			<view class="copy-tips" v-if="article.articleSource!='OFFICIAL'">
-				本文由网友编辑推荐，如有侵权请联系我们删掉
-			</view>
-			<view class="edit-btn bg-btn" @tap="edit" v-if="article.articleSource!='OFFICIAL'">
-				我也要制作
-			</view>
+			
+			
 			<view class="clear"></view>
-			<view class="operate-area">
-				<view class="operate-li">
-					<view class="iconfont iconliulanliang"></view>
-					<view class="num">
-						{{article.readNum}}
-					</view>
-				</view>
-				<view class="operate-li" @tap="getPraise">
-					<view class="iconfont " :class="{'active icondianzan1':isPraise,'icondianzan':!isPraise}"></view>
-					<view class="num" :class="{'active':isPraise}">
-						{{article.praiseNum}}
-					</view>
-				</view>
-				<view class="no-btn operate-li" >
-					<button open-type="share" class="no-btn operate-li primary-border">
-						<view class="iconfont iconfenxiang2"></view>
-						<view class="num">
-							分享
-						</view>
-					</button>
-				</view>
-				<navigator v-if="article.articleSource!='OFFICIAL'" hover-class="none" :url="'/pages/make_money/complaint?articleSeqId'+article.seqId+'&articleTitle='+article.articleTitle"
-				 class="operate-li primary-border">
-					<view class="iconfont icontousujianyi3x" style="color: #4872E5;"></view>
-					<view class="num">
-						投诉
-					</view>
-				</navigator>
-			</view>
 			<view class="ad-content">
 				<view class="ad-line"></view>
 				<view class="ad-text">广告</view>
@@ -86,7 +53,7 @@
 					<image lazy-load class="adver-img" :src="advert.advertisementPic" mode="aspectFill"></image>
 				</view>
 				<!-- 关注广告 -->
-				<view class="advertise_focus" v-if="cur_advert==3" @tap="adverPop()">
+				<view class="advertise_focus" v-if="cur_advert==3" @tap="adverPop">
 					<image lazy-load class="img-box" :src="advert.advertisementPic" mode="aspectFill"></image>
 					<view class="right">
 						<view class="l">
@@ -148,22 +115,8 @@
 					</view>
 				</view>
 			</view>
-			<view class="make-btn"  @tap="createCanvasImageEvn"> 
-				<view class="text">分享</view>
-				<view class="text">朋友圈</view>
-			 </view>
 		</view>
-		<view class="login-box" v-if="!is_login">
-			<image lazy-load class="no-login" src="/static/images/message-box-icon.png" mode="aspectFill"></image>
-			<button class="no-btn confirm-btn" open-type="getUserInfo" @getuserinfo="wxLogin">请先登录</button>
-		</view>
-		<!-- 我的分享二维码 -->
-		<canvas class="qrcode-canvas canvas-hidden" canvas-id="qrcode" />
-		<!-- 分享弹窗-->
-		<hchPoster ref="hchPoster" :canvasFlag.sync="canvasFlag" @cancel="canvasCancel" :posterObj.sync="posterData" @saveposter="giveReward('SHARE')"/>
-		<view :hidden="canvasFlag"><!-- 海报 要放外面放组件里面 会找不到 canvas-->
-			<canvas class="canvas"  canvas-id="myCanvas" ></canvas><!-- 海报 -->
-		</view>
+		
 		<!-- 点击广告弹框 -->
 		<uni-modal class="uni-modal-box" v-if="adpop_show">
 			<div class="uni-mask" @tap="adpop_show=false"></div>
@@ -179,14 +132,7 @@
 </template>
 
 <script>
-	import hchPoster from '@/components/hch-poster/hch-poster2.vue'
 	import jyfParser from '@/components/jyf-parser/jyf-parser';
-	import jwt_decode from "jwt-decode";
-	import uQRCode from '@/common/js/uqrcode.js'
-	import {
-		getProvider,
-		getCode
-	} from '@/common/js/login/newlogin.js'
 	import {
 		mapState
 	} from 'vuex';
@@ -201,7 +147,6 @@
 	export default {
 		data() {
 			return {
-				is_login: true,
 				article: {},
 				cur_advert: "-1",
 				advert_map:{
@@ -254,62 +199,42 @@
 			})
 		},
 		onLoad(option) {
-			// 是否登录
-			if (option.q !== undefined) {
-				// 通过朋友圈分享的二维码进入
-				let q = decodeURIComponent(option.q);
-				//截取参数 
-				let share_url = getQueryString(q);
-				seqId = getQueryString(q, "seqId"); //文章id
-				offerRewardSeqId = getQueryString(q, "offerRewardSeqId")||""; //悬赏id
-				popularizeSeqId=getQueryString(q, "popularizeSeqId")||""; //推广id
-				articleCode = getQueryString(q, "articleCode"); //分享人code
-			} else {
-				// 自己进入或者好友分享进入
+			if(option.url){
+			}else {
 				seqId = option.seqId; //文章id
-				offerRewardSeqId = option.offerRewardSeqId; //悬赏id
-				popularizeSeqId = option.popularizeSeqId; //推广id
-				articleCode = option.articleCode? option.articleCode : ""; //分享人code
-				sharebtn = option.sharebtn ? option.sharebtn : ""; //文章列表点击分享跳过来
+				offerRewardSeqId=option.offerRewardSeqId
+				this.loadDetail()
 			}
 			
-			this.loadInfo();
-			
 		},
-		onShow() {
-			// #ifdef MP
-			(async () => {
-				//获取服务商信息
-				provider = await getProvider();
-				//获取code
-				code = await getCode(provider[0])
-			})()
-			// #endif
-		},
+
 		components: {
 			jyfParser,
-			hchPoster
 		},
-		// #ifdef MP
-		onShareAppMessage(res) {
-			let path1='/pages/make_money/article_detail?seqId=' + seqId + '&offerRewardSeqId=' + offerRewardSeqId+'&articleCode='+this.user_state.shareCode;
-			if(!offerRewardSeqId&&popularizeSeqId){
-				path1='/pages/make_money/article_detail?seqId=' + seqId + '&popularizeSeqId=' + popularizeSeqId
-			}
-			return {
-				title: this.article.articleTitle,
-				path: path1,
-				imageUrl: this.article.articlePic
-			}
-		},
-		// #endif
+
 		methods: {
+			loadDetail() {
+				let self = this;
+				this.$api.get('/o2oMyArticle/getArticleInfo', {
+					params: {
+						seqId: seqId,
+						offerRewardSeqId: offerRewardSeqId,
+					}
+				}).then(res => {
+					if (res.code == 200) {
+						let data = res.data;
+						this.article = data;
+						data.praiseNum = data.praiseNum == null ? 0 : data.praiseNum;
+						this.articlePic = this.article.articlePic;
+						this.getAdver(data.advertisementSeqId)
+					}
+				})
+			},
 			linkpress(e) {
 				this.copy(e.href,true)
 			},
 			// 复制
 			copy(data,isUrl=false){
-				this.adverRecord(this.advert.seqId)
 				let self=this;
 				// #ifndef H5
 				uni.setClipboardData({
@@ -324,7 +249,6 @@
 			},
 			// 打电话
 			callPhone(phone) {
-				this.adverRecord(this.advert.seqId)
 				let self=this;
 				uni.showModal({
 					content: "是否拨打电话 " + phone + "?",
@@ -345,187 +269,29 @@
 				})
 			},
 			// 广告弹出二维码
-			adverPop(cardin=false){
-				if(!cardin){
-					// 名片广告就不再请求
-					this.adverRecord(this.advert.seqId)
-				}
+			adverPop(img){
 				this.adpop_show=true;
 				this.ad_qrcode=this.advert.qrCode
 			},
 			adverCard(){
-				this.adverRecord(this.advert.seqId)
 				let self=this;
 				uni.showActionSheet({
 					title: '',
 					itemList: ['打电话','添加微信','保存二维码'],
 					success: (e) => {
+						console.log(e);
 						if(e.tapIndex==0){
 							self.callPhone(self.advert.phone)
 						}else if(e.tapIndex==1){
 							self.copy(self.advert.weChatNum)
 						}else if(e.tapIndex==2){
 							self.ad_qrcode=self.advert.qrCode
-							self.adverPop(true)
+							self.adverPop()
 						}
 					}
-				})
-			},
-			// 广告点击统计
-			adverRecord(advertisementSeqId){
-				this.$api.get('/o2oAdvertisementRecord/statistic',{
-					params:{
-						customerSeqId:this.$common.getLocalSync('customerSeqId'),
-						advertisementSeqId:advertisementSeqId,
-						offerRewardSeqId:offerRewardSeqId,
-					}
-				}).then(res=>{
-				})
-			},
-			createCanvasImageEvn(){
-				// 这个是固定写死的小程序码
-				Object.assign(this.posterData,
-				{
-					url:this.articlePic,//商品主图
-					icon:this.articlePic,//醉品价图标
-					title:this.article.articleTitle,//标题
-					referrer:this.referrer,
-					discountPrice:"",//折后价格
-					orignPrice:"",//原价
-					code:this.qrcodeSrc,//小程序码
-				})
-				this.$forceUpdate();//强制渲染数据
-				setTimeout(()=>{
-					this.canvasFlag=false;//显示canvas海报
-					this.deliveryFlag = false;//关闭分享弹窗
-					this.$refs.hchPoster.createCanvasImage();//调用子组件的方法
-				},500)
-			},
-
-			// 取消海报
-			canvasCancel(val){
-				this.canvasFlag=val;
-			},
-			getData(){
-				customerSeqId =  this.$common.getLocalSync('customerSeqId') ;
-				// 手机登录用username
-				this.nickName=this.user_state.nickname?this.user_state.nickname:this.user_state.userName;
-				this.referrer=this.nickName+"邀请您"
-				this.giveReward('READ')
-				this.loadDetail();
-				this.getIsPraise();
-				this.getQrcode();
-			},
-
-			// 制作小程序二维码
-			getQrcode() {
-				let url=this.$webconfig.web_url+"/articleShare?seqId="+seqId+"&offerRewardSeqId="+offerRewardSeqId+'&articleCode='+this.user_state.shareCode;
-				if(!offerRewardSeqId&&popularizeSeqId){
-					url=this.$webconfig.web_url+"/articleShare?seqId="+seqId+"&popularizeSeqId="+popularizeSeqId
-				}
-				let width=uni.upx2px(240);
-				uQRCode.make({
-					canvasId: 'qrcode',
-					text: url,
-					size: width,
-					margin: 5,
-					success: res => {
-						this.qrcodeSrc=res;
-					},
-					complete: () => {}
 				})
 			},
 			
-			// 是否点赞
-			getIsPraise() {
-				let id=offerRewardSeqId;
-				if(popularizeSeqId){
-					id=popularizeSeqId
-				}
-				this.$api.get('/o2oArticlePraise/isPraise', {
-					params: {
-						spreadSeqId: id,
-						customerSeqId: customerSeqId
-					}
-				}).then(res => {
-					if (res.code == 200) {
-						this.isPraise = res.data;
-					}
-				})
-			},
-			// 点赞
-			getPraise() {
-				let id=offerRewardSeqId;
-				let url='/o2oArticlePraise/praise'
-				if(popularizeSeqId){
-					id=popularizeSeqId;
-					url='/o2oArticlePraise/praise1'
-				}
-				this.$api.post(url, {
-					spreadSeqId: id,
-					customerSeqId: customerSeqId
-				}).then(res => {
-					if (res.code == 200) {
-						if (res.data) {
-							this.loadDetail();
-							this.isPraise = !this.isPraise
-						}
-					}
-				})
-			},
-			// 我要制作
-			edit() {
-				uni.navigateTo({
-					url: '/pages/make_money/article_edit?fromType=2&seqId=' + seqId + '&offerRewardSeqId=' + offerRewardSeqId
-				})
-			},
-			// 分享 阅读
-			giveReward(type) {
-				// 阅读
-				let url='/o2oOfferReward/shareOrReadGiveRewards';
-				let obj={
-					rewardType: type,
-					seqId: offerRewardSeqId,
-					customerSeqId: customerSeqId,
-					shareCode:articleCode
-				}
-				// 推广
-				if(popularizeSeqId){
-					url="/o2oNoticePopularize/readStatistic"
-					obj={
-						seqId: popularizeSeqId,
-						customerSeqId: customerSeqId,
-					}
-					
-				}
-				if(popularizeSeqId&&type=='SHARE')return;//推广没有分享赚钱
-				this.$api.post(url, obj).then(res => {})
-			},
-			
-			// 文章详情
-			loadDetail() {
-				let self = this;
-				this.$api.get('/o2oMyArticle/getArticleInfo', {
-					params: {
-						seqId: seqId,
-						offerRewardSeqId: offerRewardSeqId,
-						popularizeSeqId: popularizeSeqId
-					}
-				}).then(res => {
-					if (res.code == 200) {
-						let data = res.data;
-						this.article = data;
-						data.praiseNum = data.praiseNum == null ? 0 : data.praiseNum;
-						this.articlePic = this.article.articlePic;
-						this.getAdver(data.advertisementSeqId)
-						if (sharebtn) {
-							this.$nextTick(function() {
-								self.pageScrollToBottom()
-							})
-						}
-					}
-				})
-			},
 			getAdver(seqId){
 				if(seqId){
 					this.$api.get('/o2oAdvertisementSnapshot/getByPk',{
@@ -544,60 +310,7 @@
 				}else{
 					this.cur_advert=0
 				}
-			},
-			// 滑动到最底部 方便分享
-			pageScrollToBottom: function() {
-				uni.createSelectorQuery().select('#box').boundingClientRect(function(rect) {
-					// 使页面滚动到底部
-					uni.pageScrollTo({
-						scrollTop: rect.bottom,
-						duration: 300
-					});
-
-				}).exec()
-			},
-			// 微信登录
-			wxLogin(e) {
-				// #ifndef H5
-				let that = this;
-				if (!code) {
-					uni.showToast({
-						icon: 'none',
-						title: '正在加载中，稍等一下',
-						duration: 1000
-					});
-				}
-				if (e.detail && e.detail.errMsg == 'getUserInfo:ok') {
-					uni.getUserInfo({
-						lang:"zh_CN",
-						success(info_res) {
-							that.info_res = info_res;
-							that.sendLogin()
-						}
-					})
-				}
-				// #endif
-			},
-			sendLogin() {
-				this.$api.post('/login/save', {
-					code: code,
-					rawData: this.info_res.rawData,
-					iv: this.info_res.iv,
-					signature: this.info_res.signature,
-					encryptedData: this.info_res.encryptedData
-				}).then(res => {
-					if (res.code == 200) {
-						let token = res.data;
-						let user_json = jwt_decode(token);
-						this.$common.setLocal('token', res.data);
-						this.$common.setLocal('customerSeqId', user_json.userId);
-						this.$common.setLocal('customerName', user_json.userName || "");
-						this.$store.commit('saveUser', user_json)
-						this.is_login = true;
-						// 登录之后再请求之前接口
-						this.getData()
-					}
-				})
+				
 			},
 			// 保存图片
 			saveImg() {
@@ -656,22 +369,6 @@
 						icon: "none"
 					});
 				}
-			},
-			// 获取登录状态
-			loadInfo() {
-				this.$api.get('/login/getUserInfo', {
-					params: {
-						userId: this.$common.getLocalSync('customerSeqId')
-					}
-				}).then(res => {
-					if(res.code==401){
-						this.is_login =false
-					}else {
-						this.is_login =true;
-						this.getData()
-					}
-					
-				})
 			}
 		}
 	}
@@ -687,11 +384,6 @@
 </script>
 
 <style lang="scss">
-	// 防止页面滚动
-	.box-hidden{
-		height: calc(97vh - var(--window-top));
-		overflow: hidden;
-	}
 	.share-pro{
 	    display: flex;
 	    align-items: center;
@@ -1226,7 +918,7 @@
 			}
 		}
 	}
-		.ad-content {
+.ad-content {
 			display: flex;
 			margin-top: 30rpx;
 			.ad-line {
@@ -1247,7 +939,6 @@
 		width: 100%;
 		margin-top: 40rpx;
 		position: relative;
-
 		.adver-sign {
 			position: absolute;
 			right: 30rpx;
