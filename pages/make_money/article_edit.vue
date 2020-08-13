@@ -493,7 +493,9 @@
 						let articleContent = res.data.articleContent || '';
 						let content = [];
 						if (articleContent.startsWith('<section>')) { // 内部文章
-							let ac = articleContent.replace(/^<section>/g, '').replace(/<\/section>$/g, '');
+							let ac = articleContent.replace(/^<section>/g, '').replace(/<\/section>$/g, '').replace(/<a href="([^"]*?)" /g, ($0,$1)=>{
+								return $0 + ' onclick="return false;"';
+							});
 							ac = ac ||
 								'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>'
 							content = ac.split(/<\/section><section>/);
@@ -672,12 +674,13 @@
 							const size = curContent.match(/font-size:([^;]+);/);
 							const align = curContent.match(/text-align:([^;]+);/);
 							this.hasHref = arrs[2] ? arrs[2] : '';
-							this.modalValue = curContent.replace(/^(<a href=".*">)?<div class="hs-text".+?>/g, "").replace(
+							let text = curContent.replace(/^(<a href=".*">)?<div class="hs-text".+?>/g, "").replace(
 								/<\/div>(<\/a>)?$/g, "").replace(/<br\/>/g, '\n'); // 去掉首尾div标签
 							this.fontColor = color ? color[1] : '#000';
 							this.fontWeight = weight ? weight[1] : 'normal';
 							this.fontSize = size ? size[1] : '14px';
 							this.textAlign = align ? align[1] : 'left';
+							this.modalValue = text==='点击开始编辑文章内容'?'':text;
 						}
 					}],
 					[/.*/, () => { // 展示弹框
@@ -705,6 +708,14 @@
 					}],
 					[/插入段落|修改文字/, () => { // 0为插入段落，1为修改文字
 						const type = this.modalType === '插入段落' ? 0 : 1;
+						if (this.modalValue==='') {
+							uni.showToast({
+								icon: 'none',
+								title: '内容不能为空！',
+								duration: 2000
+							});
+							return;
+						}
 						let content =
 							`<div class="hs-text" style="color:${this.fontColor};font-weight:${this.fontWeight};text-align:${this.textAlign};font-size:${this.fontSize};">${this.modalValue.replace(/\n/g,'<br/>')}</div>`;
 						if (this.hasHref) {
