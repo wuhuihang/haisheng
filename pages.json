@@ -19,6 +19,30 @@
 				"navigationBarTitleText": "文章详情"
 			}
         }
+        ,{
+            "path" : "pages/visiting_card/card",
+            "style" : {
+				"navigationBarTitleText": "电子名片详情"
+			}
+        },
+		{
+            "path" : "pages/visiting_card/cardList",
+            "style" : {
+				"navigationBarTitleText": "电子名片列表"
+			}
+        },
+		{
+            "path" : "pages/visiting_card/extension",
+            "style" : {
+				"navigationBarTitleText": "电子名片"
+			}
+        },
+		{
+            "path" : "pages/visiting_card/cardListDetail",
+            "style" : {
+				"navigationBarTitleText": "电子名片列表详情"
+			}
+        }
     ],
 	"subPackages": [
 		{
@@ -99,9 +123,8 @@
 		"current": 0, //当前激活的模式（list 的索引项）
 		"list": [
 			{
-				"name": "index2",
-				"path": "pages/write/write", //启动页面，必选
-				"query": "merchantSeqId=989f864cff9c42c6bb0438da20553050"
+				"name": "card",
+				"path": "pages/visiting_card/card" //启动页面，必选
 			},
 			{
 				"name": "index",
