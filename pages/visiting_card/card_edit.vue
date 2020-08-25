@@ -10,6 +10,14 @@
 				<view v-if="/^<video([\s\S]*)<\/video>$/.test(item)">			
 					<image :src="cloudUrl+'/videodefault.png'" style="width: 100%;height:277rpx;" mode="aspectFill"></image>
 				</view>
+				<view v-else-if='/^<div class="hs-form"/.test(item)' class="hs-form">
+					<!-- <view class="close">✖</view> -->
+					<view class="hs-form-name"><input class="hs-form-name-input" placeholder="请输入表单名称"/></view>
+					<view class="hs-form-item"><span class="hs-form-item-span">姓名</span><input class="hs-form-item-input" placeholder="请输入您的姓名"/></view>
+					<view class="hs-form-item"><span class="hs-form-item-span">手机号</span><input class="hs-form-item-input" placeholder="请输入您的联系方式"/></view>
+					<view class="hs-form-item"><span class="hs-form-item-span">内容</span><input class="hs-form-item-input" placeholder="请输入内容"/></view>
+					<view><button class="hs-form-button">提交</button></view>
+				</view>
 				<view v-html="item" v-else></view>
 			</view>
 		</view>
@@ -25,7 +33,7 @@
 					<image src="/static/images/write/img.png" mode="heightFix"></image>
 					<view>插入图片</view>
 				</view>
-				<view class="edit-item">
+				<view class="edit-item" @click="addForm()">
 					<image src="/static/images/write/ad.png" mode="heightFix"></image>
 					<view>插入表单</view>
 				</view>
@@ -397,6 +405,20 @@
 			changeColor(color) {
 				this.fontColor = color;
 			},
+			addForm() {
+				let content = '';
+				content =
+					// <div class="close">✖</div>
+					`<div class="hs-form">
+						<div class="hs-form-name"><input class="hs-form-name-input" placeholder="请输入表单名称"/></div>
+						<div class="hs-form-item"><span class="hs-form-item-span">姓名</span><input class="hs-form-item-input" placeholder="请输入您的姓名"/></div>
+						<div class="hs-form-item"><span class="hs-form-item-span">手机号</span><input class="hs-form-item-input" placeholder="请输入您的联系方式"/></div>
+						<div class="hs-form-item"><span class="hs-form-item-span">内容</span><input class="hs-form-item-input" placeholder="请输入内容"/></div>
+						<div><button class="hs-form-button">提交</button></div>
+					</div>`;
+				this.content.splice(this.active + 1, 0, content);
+				this.active = -1;
+			},
 			// 展示商品列表弹框
 			showGoodListModel() {
 				this.showGoodList = true;
@@ -669,6 +691,85 @@
 						color: #E04B28;
 						font-size: 30rpx;
 					}
+				}
+			}
+			
+			/deep/ .hs-form {
+				width: 100%;
+				position: relative;
+				.close {
+					width: 50rpx;
+					height: 50rpx;
+					line-height: 50rpx;
+					position: absolute;
+					top: -25rpx;
+					right: -20rpx;
+					color: red;
+					box-shadow: 0px 0px 10px #ccc;
+					border-radius: 25rpx;
+					text-align: center;
+					background-color: #FFFFFF;
+					font-size: 30rpx;
+				}
+				.hs-form-name {
+					width: 100%;
+					height:68rpx;
+					margin-bottom: 23rpx;
+					.hs-form-name-input {
+						width:682rpx;
+						height:68rpx;
+						line-height:68rpx;
+						border:1rpx solid rgba(72,114,229,0.4);
+						border-radius:4rpx;
+						text-align: center;
+					}
+				}
+				.hs-form-item {
+					position: relative;
+					width: 100%;
+					height:68rpx;
+					margin-bottom: 26rpx;
+					.hs-form-item-span {
+						font-size:26rpx;
+						display: block;
+						position: absolute;
+						top: 18rpx;
+						left: 0rpx;
+						width: 133rpx;
+						box-sizing: border-box;
+						text-align: right;
+						height: 32rpx;
+						line-height:32rpx;
+						padding-right: 24rpx;
+						border-right: 1px solid rgba(153,153,153,1);
+						&:before {
+							content: '*';
+							color: red;
+						}
+					}
+					.hs-form-item-input {
+						position: absolute;
+						top: 0rpx;
+						left: 0rpx;
+						height:68rpx;
+						width:682rpx;
+						box-sizing: border-box;
+						line-height:68rpx;
+						border:1rpx solid rgba(72,114,229,0.4);
+						border-radius:4px;
+						padding-left: 166rpx;
+					}
+				}
+				.hs-form-button {
+					width:438rpx;
+					height:80rpx;
+					display: block;
+					margin: 0 auto;
+					line-height:80rpx;
+					background:rgba(255,158,151,1);
+					border-radius:10rpx;
+					text-align: center;
+					color: #fff;
 				}
 			}
 		}

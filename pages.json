@@ -124,8 +124,8 @@
 		"list": [
 			{
 				"name": "card",
-				"path": "pages/visiting_card/cardList", //启动页面，必选
-				// "path": "pages/visiting_card/extension", //启动页面，必选
+				// "path": "pages/visiting_card/cardList", //启动页面，必选
+				"path": "pages/visiting_card/extension", //启动页面，必选
 				"query": "seqId=1cd2b26b2e7f441983826b3588e5edb9"
 			},
 			{
