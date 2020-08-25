@@ -453,6 +453,7 @@ export default {
       customerSeqId: this.$common.getLocalSync('customerSeqId'),
       fromType: 1, //1原创 2别人文章制作 3我的文章再编辑 4审核失败再编辑 5url进入
       offerRewardSeqId: "",//悬赏id
+	  seqId: "",
       cloudUrl: this.$webconfig.cloud_url + '/mall/img'
     }
   },
@@ -475,6 +476,7 @@ export default {
     // 判断是否是修改页面
     if (this.fromType == 3 || this.fromType == 4 || this.fromType == 5) {
       // 获取文章详情
+	  this.seqId = option.seqId;
       this.reEdit(option.seqId)
     } else if (this.fromType == 2) {
       this.reEdit(option.seqId, option.offerRewardSeqId)
@@ -974,6 +976,7 @@ export default {
     // release 保存成功是否直接发布
     goSave(release = false) {
       let msg = '';
+	  let url = '/o2oMyArticle/insert1';
       let content = this.content.map(res => {
         if (res !==
           '<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>') {
@@ -994,13 +997,17 @@ export default {
         });
         return;
       }
+	  if(this.fromType===5){
+		  url = '/o2oMyArticle/update1';
+	  }
       // getApp().globalData.content = content;
-      this.$api.post('/o2oMyArticle/insert1', {
+      this.$api.post(url, {
         customerSeqId: this.customerSeqId,
         articleTitle: this.articleTitle,
         articlePic: this.articlePic,
         advertisementSeqId: this.advertisementSeqId,
-        articleContent: content
+        articleContent: content,
+		seqId: this.seqId,
       }).then(res => {
         let data = res.data;
         if (res.code === 200) {
