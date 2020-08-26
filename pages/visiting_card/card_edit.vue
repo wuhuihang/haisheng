@@ -11,7 +11,7 @@
 					<image :src="cloudUrl+'/videodefault.png'" style="width: 100%;height:277rpx;" mode="aspectFill"></image>
 				</view>
 				<view v-else-if='/^<div class="hs-form"/.test(item)' class="hs-form">
-					<!-- <view class="close">✖</view> -->
+					<view class="close">✖</view>
 					<view class="hs-form-name"><input class="hs-form-name-input" placeholder="请输入表单名称"/></view>
 					<view class="hs-form-item"><span class="hs-form-item-span">姓名</span><input class="hs-form-item-input" placeholder="请输入您的姓名"/></view>
 					<view class="hs-form-item"><span class="hs-form-item-span">手机号</span><input class="hs-form-item-input" placeholder="请输入您的联系方式"/></view>
@@ -406,10 +406,16 @@
 				this.fontColor = color;
 			},
 			addForm() {
+				if(this.content.some(item=>{ //只允许插入一个表单
+					return /^<div class="hs-form"/.test(item)
+				})){
+					return;
+				}
+				
 				let content = '';
 				content =
-					// <div class="close">✖</div>
 					`<div class="hs-form">
+						<div class="close">✖</div>
 						<div class="hs-form-name"><input class="hs-form-name-input" placeholder="请输入表单名称"/></div>
 						<div class="hs-form-item"><span class="hs-form-item-span">姓名</span><input class="hs-form-item-input" placeholder="请输入您的姓名"/></div>
 						<div class="hs-form-item"><span class="hs-form-item-span">手机号</span><input class="hs-form-item-input" placeholder="请输入您的联系方式"/></div>

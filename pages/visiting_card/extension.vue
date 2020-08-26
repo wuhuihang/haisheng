@@ -277,9 +277,6 @@
 							uni.navigateBack({
 								delta: 1
 							});
-							// uni.redirectTo({
-							// 	url: "/pages/visiting_card/card?seqId=" + this.cardSeqId
-							// })
 						}
 					})
 				} else {
@@ -302,9 +299,6 @@
 							uni.navigateBack({
 								delta: 1
 							});
-							// uni.redirectTo({
-							// 	url: "/pages/visiting_card/card?&seqId=" + this.cardSeqId
-							// })
 						}
 					})
 				}
@@ -322,9 +316,6 @@
 						uni.navigateBack({
 						    delta: 1
 						});
-						// uni.redirectTo({
-						// 	url: "/pages/visiting_card/card?isEdit=true&seqId=" + this.cardSeqId
-						// })
 					}
 				})
 			}

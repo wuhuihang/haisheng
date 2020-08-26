@@ -8,7 +8,7 @@
 			<view class="card-button-list">
 				<view class="card-icon"><image src="/static/images/card/music.png" mode="aspectFill"></view>
 				<view class="card-icon"><image src="/static/images/card/code.png" mode="aspectFill"></view>
-				<view class="card-icon"><image src="/static/images/card/phone.png" mode="aspectFill"></view>
+				<view class="card-icon" @click="mackCall(cardDetail.mobile)"><image src="/static/images/card/phone.png" mode="aspectFill"></view>
 				<view class="card-button" :class="{'isEdit': !isDetail}" @click="addCard">
 					<image src="/static/images/card/save.png" mode="aspectFill">
 					<view>{{isDetail?'制作':'保存'}}</view>
@@ -37,7 +37,7 @@
 						<input v-else v-model="cardDetail.remarks" placeholder-style="color:#999" placeholder="说明"/>
 				</view>
 				<view class="card-detail-item">
-					<image src="/static/images/card/tele.png" mode="aspectFill">
+					<image src="/static/images/card/tele.png" @click="mackCall(cardDetail.mobile)" mode="aspectFill">
 					<span v-if="isDetail">{{cardDetail.mobile}}</span>
 					<input v-else v-model="cardDetail.mobile" placeholder-style="color:#999" placeholder="手机"/>
 				</view>
@@ -109,6 +109,11 @@
 			}
 		},
 		methods:{
+			mackCall(phone) {
+				this.isDetail && uni.makePhoneCall({
+				    phoneNumber: phone
+				});
+			},
 			// 上传图片
 			updatePicUrl() {
 				!this.isDetail && (this.showUploadImg=true);
