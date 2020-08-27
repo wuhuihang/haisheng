@@ -30,7 +30,7 @@
 				<view class="extension-list-item" v-for="(item,index) in extensionDetail.articleList" :key="index" @click="goListDetail(item.seqId)">
 					<view class="extension-list-item-body">
 						<view class="extension-list-item-title">{{item.title}}</view>
-						<view class="extension-list-item-content">{{item.content}}</view>
+						<view class="extension-list-item-content">{{item.content.replace(/<[^<>]+>/g,'')}}</view>
 					</view>
 				</view>
 			</view>
@@ -58,8 +58,9 @@
 		</view>
 		<!-- 底部保存发布按钮 -->
 		<view class="bottom-button">
-			<view @click="goSave()" v-if="curtab===0">确定保存</view>
+			<view @click="goSaveTemplate()" v-if="curtab===0">确定保存</view>
 			<view @click="insertList()" v-if="curtab===1">新增列表</view>
+			<view @click="goSaveList()" v-if="curtab===1">确定保存</view>
 			<view v-if="curtab===2">确定提交</view>
 		</view>
 		<view class="image-box-wrap" v-show="showImgs">
@@ -92,6 +93,7 @@
 				showImgs: false,
 				cardSeqId : '',
 				seqId : '',
+				type : '',
 				isAdd: false,
 				extensionDetail: {
 					seqId: '',
@@ -113,39 +115,48 @@
 			cardEdit
 		},
 		onLoad(option) {
-			if(option.isAdd){
-				this.isAdd = true;
-			}
-			// 修改扩展
 			if(option.cardSeqId){
 				this.cardSeqId = option.cardSeqId;
 				this.seqId = option.seqId;
-				// 查询列表文章
-				// this.findListData(option.cardSeqId);
-				// 不是新增查询扩展详情
-				!option.isAdd && this.findExtendContent(option.cardSeqId,option.seqId,option.type);
+				this.type = option.type;
+				this.isAdd = option.isAdd;
 			}
 			this.getIconList();
 		},
+		onShow() {
+			this.updateExtendDetail();
+		},
 		methods:{
-			// findListData(cardSeqId){
-			// 	this.$api.get('/o2oVisitingCard/findListData', {
-			// 		params: {
-			// 			cardSeqId: cardSeqId,
-			// 		}
-			// 	}).then(res => {
-			// 		this.extensionList = res.list;
-			// 	})
-			// },
 			getIconList() {
 				this.$api.get('/o2oIconLibrary/findPage', {
 					params: {
 						customerSeqId: this.customerSeqId,
-						// pageno: cardSeqId,
+						// pageno: 1,
 						pagesize: 100,
 					}
 				}).then(res => {
 					this.IconList = res.list;
+				})
+			},
+			// 更新扩展详情（包括列表）
+			updateExtendDetail() {
+				if (this.isAdd) {
+					// 新增扩展
+					this.getExtendContent(this.cardSeqId)
+				} else {
+					// 修改扩展
+					this.findExtendContent(this.cardSeqId,this.seqId,this.type);
+				}
+			},
+			getExtendContent(cardSeqId) {	
+				this.$api.post('/o2oVisitingCard/insertExtendContent', {
+					customerSeqId: this.customerSeqId,
+					cardSeqId: this.cardSeqId,
+				}).then(res=>{
+					this.cardSeqId = res.data.cardSeqId;
+					this.seqId = res.data.seqId;
+					this.type = res.data.type;
+					this.getDetail(res);
 				})
 			},
 			findExtendContent(cardSeqId,seqId,type){
@@ -156,30 +167,30 @@
 						seqId: seqId,
 						type: type,
 					}
-				}).then(res => {	
-					// 转化文章字符串为htnl代码块
-					let articleContent = res.data.content || '';
-					let content = [];
-					let ac = articleContent.replace(/^<section>/g, '').replace(/<\/section>$/g, '').replace(/<a href="([^"]*?)" /g, ($0,$1)=>{
-						return $0 + ' onclick="return false;"';
-					});
-					ac = ac ||
-						'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>'
-					content = ac.split(/<\/section><section>/);
-					this.contentList.splice(0,1);
-					content.forEach((item)=>{
-						this.contentList.push(item);
-					});
-					
-					// 调试用需要注释
-					res.data.articleList = [{content:'111',title:'22222'},{content:'哈哈哈',title:'题目'}];
-					
-					this.extensionDetail = res.data;
+				}).then(res => {
+					this.getDetail(res);
 				})
+			},
+			getDetail(res){
+				// 转化文章字符串为htnl代码块
+				let articleContent = res.data.content || '';
+				let content = [];
+				let ac = articleContent.replace(/^<section>/g, '').replace(/<\/section>$/g, '').replace(/<a href="([^"]*?)" /g, ($0,$1)=>{
+					return $0 + ' onclick="return false;"';
+				});
+				ac = ac ||
+					'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>'
+				content = ac.split(/<\/section><section>/);
+				this.contentList.splice(0,1);
+				content.forEach((item)=>{
+					this.contentList.push(item);
+				});
+				
+				this.extensionDetail = res.data;
 			},
 			goListDetail(seqId) {
 				uni.navigateTo({
-					url: "/pages/visiting_card/cardListDetail?seqId="+seqId
+					url: "/pages/visiting_card/cardListDetail?seqId=" + seqId
 				})
 			},
 			// 上传图片
@@ -240,7 +251,21 @@
 				this.extensionDetail.iconUrl = icon;
 				this.showImgs = false;
 			},
-			goSave() {
+			insertList() {
+				this.$api.post('/o2oVisitingCardArticle/insertList', {
+					customerSeqId: this.customerSeqId,
+					cardExtendId: this.extensionDetail.seqId
+				}).then(res=>{
+					if(res.code===200){
+						uni.showToast({
+							title: '新增列表成功！',
+							duration: 2000
+						});
+						this.findExtendContent(this.cardSeqId,this.seqId,this.type);
+					}
+				})
+			},
+			goSaveTemplate() {
 				let msg = '';
 				let content = this.contentList.map(res => {
 					if (res !==
@@ -260,61 +285,54 @@
 					});
 					return;
 				}
-				if(this.isAdd){
-					this.$api.post('/o2oVisitingCard/insertExtendContent', {
-						customerSeqId: this.customerSeqId,
-						cardSeqId: this.cardSeqId,
-						content: content,
-						iconName: this.extensionDetail.iconName,
-						iconUrl: this.extensionDetail.iconUrl,
-						title: this.extensionDetail.title,
-					}).then(res=>{
-						if(res.code===200){
-							uni.showToast({
-								title: '扩展新增成功！',
-								duration: 2000
-							});
-							uni.navigateBack({
-								delta: 1
-							});
-						}
-					})
-				} else {
-					this.$api.post('/o2oVisitingCard/saveExtendContent', {
-						customerSeqId: this.customerSeqId,
-						cardSeqId: this.cardSeqId,
-						content: content,
-						iconName: this.extensionDetail.iconName,
-						iconUrl: this.extensionDetail.iconUrl,
-						title: this.extensionDetail.title,
-						iconSort: '',
-						seqId: this.seqId,
-						type: 'ARTICLE',
-					}).then(res=>{
-						if(res.code===200){
-							uni.showToast({
-								title: '扩展修改成功！',
-								duration: 2000
-							});
-							uni.navigateBack({
-								delta: 1
-							});
-						}
-					})
-				}
-			},
-			insertList() {
-				this.$api.post('/o2oVisitingCardArticle/insertList', {
+				this.$api.post('/o2oVisitingCard/saveExtendContent', {
 					customerSeqId: this.customerSeqId,
-					cardExtendId: this.seqId
+					cardSeqId: this.extensionDetail.cardSeqId,
+					seqId: this.extensionDetail.seqId,
+					content: content,
+					iconName: this.extensionDetail.iconName,
+					iconUrl: this.extensionDetail.iconUrl,
+					title: this.extensionDetail.title,
+					iconSort: '',
+					type: 'ARTICLE',
 				}).then(res=>{
 					if(res.code===200){
 						uni.showToast({
-							title: '新增列表成功！',
+							title: '扩展保存成功！',
 							duration: 2000
 						});
 						uni.navigateBack({
-						    delta: 1
+							delta: 1
+						});
+					}
+				})
+			},
+			goSaveList() {
+				let content = this.contentList.map(res => {
+					if (res !==
+						'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>') {
+						return `<section>${res.replace('onclick="return false;"','')}</section>`
+					} else {
+						return ''
+					}
+				}).join('');
+				this.$api.post('/o2oVisitingCard/saveExtendContent', {
+					customerSeqId: this.customerSeqId,
+					cardSeqId: this.extensionDetail.cardSeqId,
+					seqId: this.extensionDetail.seqId,
+					iconName: this.extensionDetail.iconName,
+					iconUrl: this.extensionDetail.iconUrl,
+					title: this.extensionDetail.title,
+					content: content,
+					type: 'LIST',
+				}).then(res=>{
+					if(res.code===200){
+						uni.showToast({
+							title: '扩展保存成功！',
+							duration: 2000
+						});
+						uni.navigateBack({
+							delta: 1
 						});
 					}
 				})
@@ -325,15 +343,18 @@
 
 <style lang="scss" scoped>
 .extension {
-	position: fixed;
+	position: absolute;
 	top: 0;
-	left: 0;
-	right: 0;
 	bottom: 0;
+	width: 100%;
+	height: 100%;
 	font-family: PingFang-SC-Medium;
 	font-weight: normal;
 	font-stretch: normal;
 	.extension-tab {
+		position: absolute;
+		top: 0;
+		left: 0;
 		width: 100%;
 		height: 193rpx;
 		display: flex;
@@ -380,7 +401,10 @@
 	}
 	.extension-content {
 		width: 100%;
-		max-height: calc(100% - 303rpx);
+		// max-height: calc(100% - 303rpx);
+		padding-top: 193rpx;
+		padding-bottom: 110rpx;
+		box-sizing: border-box;
 		overflow: auto;
 		.extension-list {
 			padding: 0 24rpx 38rpx;
@@ -464,13 +488,14 @@
 				width: 98rpx;
 				height: 98rpx;
 				border-radius: 49rpx;
-				line-height: 98rpx;
 				text-align: center;
 				margin-right: 50rpx;
 				background: #dde1ed;
 				image {
-					width: 98rpx;
-					height: 98rpx;
+					display: inline-block;
+					margin: 24rpx auto;
+					width: 49rpx;
+					height: 49rpx;
 				}
 			}
 			.extension-text {

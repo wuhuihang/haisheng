@@ -1,6 +1,11 @@
 <template>
 	<view class="cardListDetail">
-		<cardEdit :title1.sync="extensionDetail.title" :content1.sync="contentList"></cardEdit>
+		<cardEdit 
+			:title1.sync="extensionDetail.title" 
+			:seqId="extensionDetail.seqId" 
+			:cardExtendId="extensionDetail.cardExtendId" 
+			:content1.sync="contentList"
+		></cardEdit>
 	</view>
 </template>
 

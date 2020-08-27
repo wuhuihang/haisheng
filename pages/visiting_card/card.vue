@@ -20,50 +20,47 @@
 			<view class="card-detail-body">
 				<view class="card-detail-name">
 					<view class="card-detail-name-1">
-						<span v-if="isDetail">{{cardDetail.name}}</span>
+						<span v-if="isDetail">{{cardDetail.name||''}}</span>
 						<input v-else v-model="cardDetail.name" placeholder-style="color:#999" placeholder="姓名"/>
 					</view>
 					<view class="card-detail-name-2">
-						<span v-if="isDetail">{{cardDetail.position}}</span>
+						<span v-if="isDetail">{{cardDetail.position||''}}</span>
 						<input v-else v-model="cardDetail.position" placeholder-style="color:#999" placeholder="职称"/>
 					</view>
 				</view>
 				<view class="card-detail-title">
-					<span v-if="isDetail">{{cardDetail.company}}</span>
+					<span v-if="isDetail">{{cardDetail.company||''}}</span>
 						<input v-else v-model="cardDetail.company" placeholder-style="color:#999" placeholder="公司"/>
 				</view>
 				<view class="card-detail-subtitle">
-					<span v-if="isDetail">{{cardDetail.remarks}}</span>
+					<span v-if="isDetail">{{cardDetail.remarks||''}}</span>
 						<input v-else v-model="cardDetail.remarks" placeholder-style="color:#999" placeholder="说明"/>
 				</view>
 				<view class="card-detail-item">
 					<image src="/static/images/card/tele.png" @click="mackCall(cardDetail.mobile)" mode="aspectFill">
-					<span v-if="isDetail">{{cardDetail.mobile}}</span>
+					<span v-if="isDetail">{{cardDetail.mobile||''}}</span>
 					<input v-else v-model="cardDetail.mobile" placeholder-style="color:#999" placeholder="手机"/>
 				</view>
 				<view class="card-detail-item">
-					<image src="/static/images/card/email.png" mode="aspectFill">
-					<span v-if="isDetail">{{cardDetail.email}}</span>
+					<image src="/static/images/card/email.png" class="icon-email" mode="aspectFill">
+					<span v-if="isDetail">{{cardDetail.email||''}}</span>
 					<input v-else v-model="cardDetail.email" placeholder-style="color:#999" placeholder="邮箱"/>
 				</view>
 				<view class="card-detail-item">
-					<image src="/static/images/card/location.png" mode="aspectFill">
-					<span v-if="isDetail">{{cardDetail.address}}</span>
+					<image src="/static/images/card/location.png" class="icon-location" mode="aspectFill">
+					<span v-if="isDetail">{{cardDetail.address||''}}</span>
 					<input v-else v-model="cardDetail.address" placeholder-style="color:#999" placeholder="地址"/>
 				</view>
 			</view>
 			<view class="card-extend">
-				<view class="card-extend-item" v-for="(item,index) in extendList" :key="index" @click="goExtension(item)">
+				<view class="card-extend-item" v-for="(item,index) in extendBgList" :key="index" @click="goExtension(extendList[index])">
 					<view class="card-extend-item-box">
-						<image :src="item.iconUrl" mode="aspectFill">
-						</image>
-						<view class="card-extend-close" v-if="!isDetail" @click.stop="deleteExtend(item.seqId, index)">×</view>
-						<text>{{item.iconName}}</text>
-					</view>
-				</view>
-				<view class="card-extend-item" v-if="!isDetail&&extendList.length<8" @click="addExtension">
-					<view class="card-extend-item-box">
-						<image src="/static/images/card/more.png" mode="aspectFill">
+						<view class="card-extend-item-box-bg" :style="item">
+							<image v-if="extendList[index]" :src="extendList[index].iconUrl" mode="aspectFill">
+							</image>
+							<view class="card-extend-close" v-if="extendList[index]&&!isDetail" @click.stop="deleteExtend(extendList[index].seqId, index)">×</view>
+						</view>
+						<text v-if="extendList[index]">{{extendList[index].iconName}}</text>					
 					</view>
 				</view>
 			</view>
@@ -83,24 +80,34 @@
 		data() {
 			return {
 				customerSeqId: this.$common.getLocalSync('customerSeqId'),
-				showUploadImg: false,
+				showUploadImg: false, //是否显示上传图片弹窗
 				api: this.$webconfig.api_url,
 				seqId: '',
-				isDetail: true,
-				isUpdateCard: false,
-				cardDetail: {},
-				extendList: []
+				isDetail: true, //是否时名片详情
+				isUpdateCard: false, //判断提交调的接口
+				cardDetail: {}, //名片详情
+				extendBgList: [ //扩展背景色
+					'background: linear-gradient(0deg, #439DFD 0%, #80CCFE 100%);',
+					'background: linear-gradient(0deg, #FA7E87 0%, #FAA694 100%);',
+					'background: linear-gradient(0deg, #0FB984 0%, #5EECBE 100%);',
+					'background: linear-gradient(0deg, #EB8838 7%, #FADE9C 100%);',
+					'background: linear-gradient(0deg, #673CF2 0%, #8098FE 100%);',
+					'background: linear-gradient(0deg, #F7CA51 0%, #FFEFB8 100%);',
+					'background: linear-gradient(0deg, #56EEAE 0%, #D0FFEB 100%);',
+					'background: linear-gradient(0deg, #519CEE 7%, #9CC8FA 100%);',
+				],
+				extendList: [] //扩展列表
 			};
 		},
 		onLoad(option) {
-			if(option.isUpdateCard){ //判断提交调的接口
+			if(option.isUpdateCard){ //判断提交调的接口，是否是更新名片状态
 				this.isUpdateCard = true;
 			}
 			if(option.seqId){
 				this.seqId = option.seqId;
-				this.getByPk(option.seqId);
+				this.getByPk(option.seqId); //如果有seqId则为查看名片详情
 			} else {
-				this.getTemplate();
+				this.getTemplate(); //如果没有seqId则代表为新增名片
 			}
 		},
 		onShow() {
@@ -109,15 +116,17 @@
 			}
 		},
 		methods:{
+			// 打电话
 			mackCall(phone) {
 				this.isDetail && uni.makePhoneCall({
 				    phoneNumber: phone
 				});
 			},
-			// 上传图片
+			// 更新图片
 			updatePicUrl() {
 				!this.isDetail && (this.showUploadImg=true);
 			},
+			// 上传图片
 			uploadImg(type) {
 				uni.chooseImage({
 					count: 1,
@@ -171,60 +180,39 @@
 					},
 				});
 			},
-			
+			// 查询名片详情
 			getByPk(seqId) {
 				this.$api.get('/o2oVisitingCard/getByPk', {
 					params: {
 						seqId: seqId,
 					}
 				}).then(res => {
-					console.log('getByPk',res);
 					this.cardDetail = res.data;
 					this.getExtendList(this.cardDetail.seqId);
 				})
 			},
+			// 新增、查询名片初始模板
 			getTemplate(){
 				this.$api.get('/o2oVisitingCard/buildTemplate', {
 					params: {
 						customerSeqId: this.customerSeqId,
 					}
 				}).then(res => {
-					console.log('buildTemplate',res);
-					// res.data = {
-					// 	address: '湖北省武汉市硚口区古田西路578号',
-					// 	appQrCode: '',
-					// 	company: '湖北百亿互动大数据科技有限公司',
-					// 	customerSeqId: '',
-					// 	email: '875471457@qq.com',
-					// 	gzhQrCode: '',
-					// 	isDelete: "0",
-					// 	logo: '',
-					// 	mobile: '198-3451-1541',
-					// 	mpQrCode: '',
-					// 	musicUrl: '',
-					// 	name: '徐维佳',
-					// 	picUrl: '',
-					// 	position: '市场经理',
-					// 	remarks: '',
-					// 	seqId: '1cd2b26b2e7f441983826b3588e5edb9',
-					// 	updateBy: '',
-					// 	updateDate: '',
-					// 	wxQrCode: ''
-					// };
 					this.cardDetail = res.data;
 					this.getExtendList(this.cardDetail.seqId);
 				})
 			},
+			// 查询扩展
 			getExtendList(seqId){
 				this.$api.get('/o2oVisitingCard/findVisitingCardList', {
 					params: {
 						cardSeqId: seqId,
 					}
 				}).then(res => {
-					console.log('getExtendList',res);
 					this.extendList = res.data;
 				})
 			},
+			// 删除扩展
 			deleteExtend(seqId, index) {
 				if(this.extendList.length<2){
 					return ;
@@ -244,28 +232,34 @@
 					}
 				})
 			},
+			// 跳转扩展
 			goExtension(item) {
-				if(this.isDetail){
+				if(this.isDetail){ // 名片为详情时，不跳转编辑页面
 					return;
 				}
-				uni.navigateTo({
-					url: `/pages/visiting_card/extension?cardSeqId=${this.cardDetail.seqId}&seqId=${item.seqId}&type=${item.type||'ARTICLE'}`,
-				})
+				if(!item){ // 如果扩展不存在就跳转新增
+					uni.navigateTo({
+						url: `/pages/visiting_card/extension?isAdd=true&cardSeqId=${this.cardDetail.seqId}`,
+					});
+				} else { // 扩展存在就跳转修改
+					uni.navigateTo({
+						url: `/pages/visiting_card/extension?cardSeqId=${this.cardDetail.seqId}&seqId=${item.seqId}&type=${item.type||'ARTICLE'}`,
+					})
+				}
 			},
-			addExtension () {
-				uni.navigateTo({
-					url: `/pages/visiting_card/extension?isAdd=true&cardSeqId=${this.cardDetail.seqId}`,
-				});
-			},
+			// 新增名片
 			addCard() {
+				// 默认为新增名片
 				let url = '/o2oVisitingCard/insert';
-				if(this.isDetail){
+				if(this.isDetail){ // 名片为详情时，不能新增
 					this.isDetail = false;
 					return;
 				}
+				// 当前为更新名片
 				if(this.isUpdateCard){
 					url = '/o2oVisitingCard/update';
 				}
+				// 下面这些数据还获取不到，写死提交
 				this.cardDetail.logo = this.cardDetail.picUrl;
 				this.cardDetail.wxQrCode = 'this.cardDetail.wxQrCode';
 				this.cardDetail.gzhQrCode = 'this.cardDetail.gzhQrCode';
@@ -446,13 +440,21 @@
 			.card-detail-item {
 				font-size: 24rpx;
 				line-height: 23rpx;
-					height: 23rpx;
+				height: 23rpx;
 				margin-bottom: 26rpx;
 				color: #ffffff;
 				image {
-					width: 20rpx;
-					height: 20rpx;
+					width: 19rpx;
+					height: 19rpx;
 					margin-right: 20rpx;
+					&.icon-email{
+						width: 18rpx;
+						height:15rpx;
+					}
+					&.icon-location{
+						width: 17rpx;
+						height:24rpx;
+					}
 				}
 				input {
 					display: inline-block;
@@ -469,30 +471,36 @@
 				margin-bottom: 34rpx;
 				text-align: center;
 				.card-extend-item-box {
-					position: relative;
-					width: 100rpx;
-					margin: 0 auto;
 					color: #ffffff;
 					font-size: 24rpx;
-					image {
+					.card-extend-item-box-bg {
 						width: 100rpx;
 						height: 100rpx;
 						border-radius: 50rpx;
+						position: relative;
+						margin: 0 auto;
+						image {
+							display: inline-block;
+							margin: 25rpx auto;
+							width: 50rpx;
+							height: 50rpx;
+						}
+						.card-extend-close {
+							position: absolute;
+							top: 10rpx;
+							right: 10rpx;
+							width: 30rpx;
+							height: 30rpx;
+							background: #fff;
+							color: #666666;
+							line-height: 30rpx;
+							border-radius: 15rpx;
+						}
 					}
 					text {
+						display: block;
 						margin-top: 16rpx;
 						line-height: 24rpx;
-					}
-					.card-extend-close {
-						position: absolute;
-						top: 0;
-						right: 0;
-						width: 30rpx;
-						height: 30rpx;
-						background: #fff;
-						color: #666666;
-						line-height: 30rpx;
-						border-radius: 15rpx;
 					}
 				}
 			}

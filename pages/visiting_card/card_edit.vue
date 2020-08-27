@@ -34,7 +34,7 @@
 					<view>插入图片</view>
 				</view>
 				<view class="edit-item" @click="addForm()">
-					<image src="/static/images/write/ad.png" mode="heightFix"></image>
+					<image src="/static/images/card/form.png" mode="heightFix"></image>
 					<view>插入表单</view>
 				</view>
 				<view class="edit-item" @click="showUploadVideo=true">
@@ -224,6 +224,14 @@
 			}
 		},
 		props: {
+			seqId: {
+				type: String,
+				default: ''
+			}, 
+			cardExtendId: {
+				type: String,
+				default: ''
+			}, 
 			title1: {
 				type: String,
 				default: ''
@@ -604,11 +612,11 @@
 					return;
 				}
 				this.$api.post('/o2oVisitingCardArticle/update', {
-					// seqId: this.customerSeqId,
-					// cardExtendId: this.customerSeqId,
+					seqId: this.seqId,
+					cardExtendId: this.cardExtendId,
 					customerSeqId: this.customerSeqId,
 					title: this.title,
-					articleContent: content
+					content: content
 				}).then(res => {
 					if (res.code === 200) {
 						uni.showToast({
