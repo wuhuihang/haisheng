@@ -52,15 +52,19 @@
 					<input v-else v-model="cardDetail.address" placeholder-style="color:#999" placeholder="地址"/>
 				</view>
 			</view>
+				{{extendList.length}}
 			<view class="card-extend">
 				<view class="card-extend-item" v-for="(item,index) in extendBgList" :key="index" @click="goExtension(extendList[index])">
-					<view class="card-extend-item-box">
+					<view class="card-extend-item-box" v-if="index < extendList.length || (index === extendList.length&&!isDetail)">
 						<view class="card-extend-item-box-bg" :style="item">
 							<image v-if="extendList[index]" :src="extendList[index].iconUrl" mode="aspectFill">
 							</image>
-							<view class="card-extend-close" v-if="extendList[index]&&!isDetail" @click.stop="deleteExtend(extendList[index].seqId, index)">×</view>
+							<view v-else class="card-extend-add"></view>
+							<view class="card-extend-close" v-if="extendList[index]&&!isDetail" @click.stop="deleteExtend(extendList[index].seqId, index)">
+								<view>×</view>
+							</view>
 						</view>
-						<text v-if="extendList[index]">{{extendList[index].iconName}}</text>					
+						<text>{{extendList[index]?extendList[index].iconName:'栏目名称'}}</text>					
 					</view>
 				</view>
 			</view>
@@ -485,16 +489,46 @@
 							width: 50rpx;
 							height: 50rpx;
 						}
+						.card-extend-add {
+							width: 100rpx;
+							height: 100rpx;
+							position: relative;
+							&:before{
+								content: '';
+								position: absolute;
+								height: 10rpx;
+								width: 50rpx;
+								left: 25rpx;
+								top: 45rpx;
+								border-radius: 5rpx;
+								background-color: #fff;
+							}
+							&:after {
+								content: '';
+								position: absolute;
+								left: 45rpx;
+								top: 25rpx;
+								height: 50rpx;
+								width: 10rpx;
+								border-radius: 5rpx;
+								background-color: #fff;
+							}
+						}
 						.card-extend-close {
 							position: absolute;
-							top: 10rpx;
-							right: 10rpx;
+							top: 0rpx;
+							right: 0rpx;
 							width: 30rpx;
 							height: 30rpx;
-							background: #fff;
-							color: #666666;
-							line-height: 30rpx;
-							border-radius: 15rpx;
+							padding: 10rpx;
+							view {
+								width: 30rpx;
+								height: 30rpx;
+								background: #fff;
+								color: #666666;
+								line-height: 30rpx;
+								border-radius: 15rpx;
+							}
 						}
 					}
 					text {

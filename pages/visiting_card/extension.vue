@@ -4,28 +4,28 @@
 		<view class="extension-tab" :class="{'white-bg':curtab===1}">
 			<view class="extension-tab-item" @click="curtab=0">
 				<view class="extension-tab-image orange" :class="{active:curtab===0}">
-					<image v-if="curtab!==0" src="/static/images/card/template.png" mode="aspectFill">
-					<image v-if="curtab===0" src="/static/images/card/template-active.png" mode="aspectFill">
+					<image v-if="curtab!==0" src="/static/images/card/template.png" mode="widthFix">
+					<image v-if="curtab===0" src="/static/images/card/template-active.png" mode="widthFix">
 				</view>
 				<view class="extension-tab-text">使用模板编辑</view>
 			</view>
 			<view class="extension-tab-item" @click="curtab=1">
 				<view class="extension-tab-image blue" :class="{active:curtab===1}">
-					<image v-if="curtab!==1" src="/static/images/card/list.png" mode="aspectFill">
-					<image v-if="curtab===1" src="/static/images/card/list-active.png" mode="aspectFill">
+					<image v-if="curtab!==1" src="/static/images/card/list.png" mode="widthFix">
+					<image v-if="curtab===1" src="/static/images/card/list-active.png" mode="widthFix">
 				</view>
 				<view class="extension-tab-text">添加列表</view>
 			</view>
 			<view class="extension-tab-item" @click="curtab=2">
 				<view class="extension-tab-image green" :class="{active:curtab===2}">
-					<image v-if="curtab!==2" src="/static/images/card/link.png" mode="aspectFill">
-					<image v-if="curtab===2" src="/static/images/card/link-active.png" mode="aspectFill">
+					<image v-if="curtab!==2" src="/static/images/card/link.png" mode="widthFix">
+					<image v-if="curtab===2" src="/static/images/card/link-active.png" mode="widthFix">
 				</view>
 				<view class="extension-tab-text">添加访问链接</view>
 			</view>
 		</view>
 		<view class="extension-content" :class="{'white-bg':curtab===1}">
-			<cardEdit v-if="curtab===0" :title1.sync="extensionDetail.title" :content1.sync="contentList"></cardEdit>
+			<cardEdit ref="cardEdit" v-if="curtab===0" :title1.sync="extensionDetail.title" :content1.sync="contentList"></cardEdit>
 			<view class="extension-list" v-if="curtab===1">
 				<view class="extension-list-item" v-for="(item,index) in extensionDetail.articleList" :key="index" @click="goListDetail(item.seqId)">
 					<view class="extension-list-item-body">
@@ -152,6 +152,7 @@
 				this.$api.post('/o2oVisitingCard/insertExtendContent', {
 					customerSeqId: this.customerSeqId,
 					cardSeqId: this.cardSeqId,
+					type: 'ALL',
 				}).then(res=>{
 					this.cardSeqId = res.data.cardSeqId;
 					this.seqId = res.data.seqId;
@@ -267,6 +268,7 @@
 			},
 			goSaveTemplate() {
 				let msg = '';
+				let formTitle = '';
 				let content = this.contentList.map(res => {
 					if (res !==
 						'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>') {
@@ -277,6 +279,10 @@
 				}).join('');
 				content === '' && (msg = '文章内容不能为空！');
 				this.extensionDetail.title === '' && (msg = '文章标题不能为空！');
+				if(this.$refs['cardEdit'].hasForm){
+					formTitle = this.$refs['cardEdit'].formTitle;
+					formTitle === '' && (msg = '表单名称不能为空！');
+				}
 				if (msg) {
 					uni.showToast({
 						icon: 'none',
@@ -294,6 +300,7 @@
 					iconUrl: this.extensionDetail.iconUrl,
 					title: this.extensionDetail.title,
 					iconSort: '',
+					formTitle: formTitle,
 					type: 'ARTICLE',
 				}).then(res=>{
 					if(res.code===200){
@@ -368,27 +375,27 @@
 				border-radius: 12rpx;
 				text-align: center;
 				margin: 29rpx auto 16rpx;
+				overflow: hidden;
 				&.orange {
-					border: solid 1rpx #fa695e;
+					border: 1rpx solid #fa695e;
 					&.active {
 						background: #fa695e;
 					}
 				}
 				&.blue {
-					border: solid 1rpx #4a94f7;
+					border: 1rpx solid #4a94f7;
 					&.active {
 						background: #4a94f7;
 					}
 				}
 				&.green {
-					border: solid 1rpx #74d4af;
+					border: 1rpx solid #74d4af;
 					&.active {
 						background: #74d4af;
 					}
 				}
 				image {
 					width: 40rpx;
-					height: 40rpx;
 				}
 			}
 			.extension-tab-text {

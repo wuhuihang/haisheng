@@ -10,15 +10,15 @@
 				<view v-if="/^<video([\s\S]*)<\/video>$/.test(item)">			
 					<image :src="cloudUrl+'/videodefault.png'" style="width: 100%;height:277rpx;" mode="aspectFill"></image>
 				</view>
-				<view v-else-if='/^<div class="hs-form"/.test(item)' class="hs-form">
-					<view class="close">✖</view>
-					<view class="hs-form-name"><input class="hs-form-name-input" placeholder="请输入表单名称"/></view>
-					<view class="hs-form-item"><span class="hs-form-item-span">姓名</span><input class="hs-form-item-input" placeholder="请输入您的姓名"/></view>
-					<view class="hs-form-item"><span class="hs-form-item-span">手机号</span><input class="hs-form-item-input" placeholder="请输入您的联系方式"/></view>
-					<view class="hs-form-item"><span class="hs-form-item-span">内容</span><input class="hs-form-item-input" placeholder="请输入内容"/></view>
-					<view><button class="hs-form-button">提交</button></view>
-				</view>
 				<view v-html="item" v-else></view>
+			</view>
+			<view class="hs-form" v-if="hasForm">
+				<view class="close" @click="hasForm=false">✖</view>
+				<view class="hs-form-name"><input class="hs-form-name-input" v-model="formTitle" placeholder="请输入表单名称"/></view>
+				<view class="hs-form-item"><span class="hs-form-item-span">姓名</span><input disabled="disabled" class="hs-form-item-input" placeholder="请输入您的姓名"/></view>
+				<view class="hs-form-item"><span class="hs-form-item-span">手机号</span><input disabled="disabled" class="hs-form-item-input" placeholder="请输入您的联系方式"/></view>
+				<view class="hs-form-item"><span class="hs-form-item-span">内容</span><input disabled="disabled" class="hs-form-item-input" placeholder="请输入内容"/></view>
+				<view><button class="hs-form-button">提交</button></view>
 			</view>
 		</view>
 		<!-- 内容编辑工具 -->
@@ -213,6 +213,8 @@
 				fontColorList: ['#ea3323', '#5c8ef1', '#3d752e', '#ee712f', '#f09d37', '#000', '#88328d', '#1c19c2', '#fefb62',
 					'#a27c4f'
 				],
+				hasForm: false,
+				formTitle: '',
 				showModelStyle: false,
 				showModelStyleType: '',
 				active: -1,
@@ -414,23 +416,10 @@
 				this.fontColor = color;
 			},
 			addForm() {
-				if(this.content.some(item=>{ //只允许插入一个表单
-					return /^<div class="hs-form"/.test(item)
-				})){
+				if(this.hasForm){ //只能插入一个表单
 					return;
 				}
-				
-				let content = '';
-				content =
-					`<div class="hs-form">
-						<div class="close">✖</div>
-						<div class="hs-form-name"><input class="hs-form-name-input" placeholder="请输入表单名称"/></div>
-						<div class="hs-form-item"><span class="hs-form-item-span">姓名</span><input class="hs-form-item-input" placeholder="请输入您的姓名"/></div>
-						<div class="hs-form-item"><span class="hs-form-item-span">手机号</span><input class="hs-form-item-input" placeholder="请输入您的联系方式"/></div>
-						<div class="hs-form-item"><span class="hs-form-item-span">内容</span><input class="hs-form-item-input" placeholder="请输入内容"/></div>
-						<div><button class="hs-form-button">提交</button></div>
-					</div>`;
-				this.content.splice(this.active + 1, 0, content);
+				this.hasForm = true;
 				this.active = -1;
 			},
 			// 展示商品列表弹框
@@ -593,6 +582,7 @@
 			// release 保存成功是否直接发布
 			goSave() {
 				let msg = '';
+				let formTitle = '';
 				let content = this.content.map(res => {
 					if (res !==
 						'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>') {
@@ -603,6 +593,10 @@
 				}).join('');
 				content === '' && (msg = '文章内容不能为空！');
 				this.title === '' && (msg = '文章标题不能为空！');
+				if(this.hasForm){
+					formTitle = this.formTitle;
+					formTitle === '' && (msg = '表单名称不能为空！');
+				}
 				if (msg) {
 					uni.showToast({
 						icon: 'none',
@@ -616,6 +610,7 @@
 					cardExtendId: this.cardExtendId,
 					customerSeqId: this.customerSeqId,
 					title: this.title,
+					formTitle: formTitle,
 					content: content
 				}).then(res => {
 					if (res.code === 200) {
@@ -731,7 +726,9 @@
 					margin-bottom: 23rpx;
 					.hs-form-name-input {
 						width:682rpx;
+						box-sizing: border-box;
 						height:68rpx;
+						padding-right: 25rpx;
 						line-height:68rpx;
 						border:1rpx solid rgba(72,114,229,0.4);
 						border-radius:4rpx;
