@@ -131,17 +131,17 @@
 				});
 			},
 			chooseLocation(address) {
-				this.isDetail && uni.chooseLocation({
-				    // latitude: 120,
-				    // longitude: 30,
-					keyword: address, 
-					success: function (res) {
-						console.log('位置名称：' + res.name);
-						console.log('详细地址：' + res.address);
-						console.log('纬度：' + res.latitude);
-						console.log('经度：' + res.longitude);
-					}
-				});
+				// this.isDetail && uni.chooseLocation({
+				//     // latitude: 120,
+				//     // longitude: 30,
+				// 	keyword: address, 
+				// 	success: function (res) {
+				// 		console.log('位置名称：' + res.name);
+				// 		console.log('详细地址：' + res.address);
+				// 		console.log('纬度：' + res.latitude);
+				// 		console.log('经度：' + res.longitude);
+				// 	}
+				// });
 			},
 			// 更新图片
 			updatePicUrl() {

@@ -2,8 +2,8 @@
 	<view class="write">
 		<view class="write-tip">点击文章任意部分进行编辑</view>
 		<view class="write-top">
-			<textarea class='write-title-textarea' auto-height='true' :value="title" @input='inputChange($event)'
-			 :placeholder="hasModel?'':'请输入标题'"></textarea>
+			<textarea class='write-title-textarea' v-show="!hasModel" auto-height='true' :value="title" @input='inputChange($event)'
+			 placeholder="请输入标题"></textarea>
 		</view>
 		<view class="content">
 			<view v-for="(item,index) in content" :ref="'content'+index" :class="{'active':active===index}" :key="index" @click="selectEdit(index)">
@@ -14,10 +14,10 @@
 			</view>
 			<view class="hs-form" v-if="hasForm">
 				<view class="close" @click="hasForm=false">✖</view>
-				<view class="hs-form-name"><input class="hs-form-name-input" v-model="formTitle" :placeholder="hasModel?'':'请输入表单名称'"/></view>
-				<view class="hs-form-item"><span class="hs-form-item-span">姓名</span><input disabled="disabled" class="hs-form-item-input" :placeholder="hasModel?'':'请输入您的姓名'"/></view>
-				<view class="hs-form-item"><span class="hs-form-item-span">手机号</span><input disabled="disabled" class="hs-form-item-input" :placeholder="hasModel?'':'请输入您的联系方式'"/></view>
-				<view class="hs-form-item"><span class="hs-form-item-span">内容</span><input disabled="disabled" class="hs-form-item-input" :placeholder="hasModel?'':'请输入内容'"/></view>
+				<view class="hs-form-name"><input class="hs-form-name-input" v-show="!hasModel" v-model="formTitle" placeholder="请输入表单名称"/></view>
+				<view class="hs-form-item"><span class="hs-form-item-span">姓名</span><input disabled="disabled" class="hs-form-item-input" placeholder="请输入您的姓名" /></view>
+				<view class="hs-form-item"><span class="hs-form-item-span">手机号</span><input disabled="disabled" class="hs-form-item-input" placeholder="请输入您的联系方式" /></view>
+				<view class="hs-form-item"><span class="hs-form-item-span">内容</span><input disabled="disabled" class="hs-form-item-input" placeholder="请输入内容" /></view>
 				<view><button class="hs-form-button">提交</button></view>
 			</view>
 		</view>
