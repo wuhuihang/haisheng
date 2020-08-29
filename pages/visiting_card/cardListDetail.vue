@@ -5,6 +5,7 @@
 			:seqId="extensionDetail.seqId" 
 			:cardExtendId="extensionDetail.cardExtendId" 
 			:content1.sync="contentList"
+		    :formTitle1="extensionDetail.formTitle"
 		></cardEdit>
 	</view>
 </template>

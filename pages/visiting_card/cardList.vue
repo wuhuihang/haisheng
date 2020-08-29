@@ -31,7 +31,7 @@
 					// // 新增
 					// url: "/pages/visiting_card/card"
 					// 修改
-					url: "/pages/visiting_card/card?isUpdateCard=true&seqId=" + seqId
+					url: "/pages/visiting_card/card?seqId=" + seqId
 				})
 			}
 		}

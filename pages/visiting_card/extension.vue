@@ -25,12 +25,20 @@
 			</view>
 		</view>
 		<view class="extension-content" :class="{'white-bg':curtab===1}">
-			<cardEdit ref="cardEdit" v-if="curtab===0" :title1.sync="extensionDetail.title" :content1.sync="contentList"></cardEdit>
+			<cardEdit ref="cardEdit" v-if="curtab===0" :formTitle1="extensionDetail.formTitle" :title1.sync="extensionDetail.title" :content1.sync="contentList"></cardEdit>
 			<view class="extension-list" v-if="curtab===1">
-				<view class="extension-list-item" v-for="(item,index) in extensionDetail.articleList" :key="index" @click="goListDetail(item.seqId)">
+				<view class="extension-list-item container" 
+					v-for="(item,index) in extensionDetail.articleList" 
+					:key="item.seqId" 
+					@touchstart="touchS(index,$event)" @touchmove="touchM(index,$event)" @touchend="touchE(index,$event)" :style="{left: item.leftStyle + 'rpx'}"
+					@click="goListDetail(item.seqId)">
 					<view class="extension-list-item-body">
 						<view class="extension-list-item-title">{{item.title}}</view>
 						<view class="extension-list-item-content">{{item.content.replace(/<[^<>]+>/g,'')}}</view>
+					</view>
+					<view class="extension-list-item-button">
+						<view style="background: #aaa;" @click.stop="articleIsTop(item.seqId)">置顶</view>
+						<view style="background: #EA5863;" @click.stop="articleDelete(item.seqId)">删除</view>
 					</view>
 				</view>
 			</view>
@@ -60,8 +68,8 @@
 		<view class="bottom-button">
 			<view @click="goSaveTemplate()" v-if="curtab===0">确定保存</view>
 			<view @click="insertList()" v-if="curtab===1">新增列表</view>
-			<view @click="goSaveList()" v-if="curtab===1">确定保存</view>
-			<view v-if="curtab===2">确定提交</view>
+			<view @click="goSaveList('LIST')" v-if="curtab===1">保存列表</view>
+			<view @click="goSaveList('LINK')" v-if="curtab===2">确定提交</view>
 		</view>
 		<view class="image-box-wrap" v-show="showImgs">
 			<view class="image-box-list">
@@ -100,6 +108,7 @@
 					cardSeqId: '',
 					iconName: '',
 					iconUrl: '',
+					iconSort: '',
 					title: '',
 					content: '',
 					articleLink: '',
@@ -109,6 +118,8 @@
 				contentList: [
 					'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>',
 				],
+				startX: 0,
+				delBtnWidth: 250,
 			};
 		},
 		components:{
@@ -138,27 +149,24 @@
 					this.IconList = res.list;
 				})
 			},
-			// 更新扩展详情（包括列表）
+			// 查询扩展详情（包括列表）
 			updateExtendDetail() {
 				if (this.isAdd) {
 					// 新增扩展
-					this.getExtendContent(this.cardSeqId)
+					this.$api.post('/o2oVisitingCard/insertExtendContent', {
+						customerSeqId: this.customerSeqId,
+						cardSeqId: this.cardSeqId,
+						type: 'ALL',
+					}).then(res=>{
+						this.cardSeqId = res.data.cardSeqId;
+						this.seqId = res.data.seqId;
+						this.type = res.data.type;
+						this.getDetail(res);
+					})
 				} else {
-					// 修改扩展
-					this.findExtendContent(this.cardSeqId,this.seqId,this.type);
+					// 修改扩展查详情
+					this.findExtendContent(this.cardSeqId,this.seqId, 'ALL');
 				}
-			},
-			getExtendContent(cardSeqId) {	
-				this.$api.post('/o2oVisitingCard/insertExtendContent', {
-					customerSeqId: this.customerSeqId,
-					cardSeqId: this.cardSeqId,
-					type: 'ALL',
-				}).then(res=>{
-					this.cardSeqId = res.data.cardSeqId;
-					this.seqId = res.data.seqId;
-					this.type = res.data.type;
-					this.getDetail(res);
-				})
 			},
 			findExtendContent(cardSeqId,seqId,type){
 				this.$api.get('/o2oVisitingCard/findExtendContent', {
@@ -186,13 +194,122 @@
 				content.forEach((item)=>{
 					this.contentList.push(item);
 				});
-				
+				res.data.articleList = res.data.articleList.map(item=>{		
+					item.leftStyle = 0;
+					item.hiddenFlag = true;
+					return item;
+				})
 				this.extensionDetail = res.data;
 			},
 			goListDetail(seqId) {
 				uni.navigateTo({
 					url: "/pages/visiting_card/cardListDetail?seqId=" + seqId
 				})
+			},
+			articleIsTop(seqId) {
+				this.$api.get('/o2oVisitingCardArticle/isTop', {
+					params: {
+						customerSeqId: this.customerSeqId,
+						cardExtendId: this.extensionDetail.seqId,
+						seqId: seqId,
+					}
+				}).then(res => {
+					if(res.code===200){
+						uni.showToast({
+							title: '置顶列表文章成功！',
+							duration: 2000
+						});
+						this.findExtendContent(this.cardSeqId,this.seqId, 'ALL');
+					}
+				})
+			},
+			articleDelete(seqId) {
+				this.$api.get('/o2oVisitingCardArticle/delete', {
+					params: {
+						customerSeqId: this.customerSeqId,
+						cardExtendId: this.extensionDetail.seqId,
+						seqId: seqId,
+					}
+				}).then(res => {
+					if(res.code===200){
+						uni.showToast({
+							title: '删除列表文章成功！',
+							duration: 2000
+						});
+						this.findExtendContent(this.cardSeqId,this.seqId, 'ALL');
+					}
+				})
+			},
+			// 开始移动时
+			touchS(index, {touches}) {
+				// startX记录开始移动的位置
+				if(touches.length === 1) {
+					this.startX = touches[0].clientX;
+				}
+				// hiddenFlag为true则是从右向左，为false则是从左向右 
+				if(this.extensionDetail.articleList[index].leftStyle === 0) {
+					this.extensionDetail.articleList[index].hiddenFlag = true;
+				} else {
+					this.extensionDetail.articleList[index].hiddenFlag = false;
+				}
+			},
+			touchM(index, {touches}) {
+				if(touches.length === 1) {
+					//手指移动时水平方向位置
+					const moveX = touches[0].clientX;
+					this.moveFunc(index, moveX);
+				}
+			},
+			touchE(index, {touches}) {
+				const { leftStyle } = this.extensionDetail.articleList[index];
+				const { delBtnWidth } = this;
+				// 如果停止滑动的距离大于二分之一则直接弹出删除按钮，不然则left为0
+				if(-leftStyle > delBtnWidth/2) {
+					this.extensionDetail.articleList[index].leftStyle = -delBtnWidth;
+				} else {
+					this.extensionDetail.articleList[index].leftStyle = 0;
+				}
+			},
+			moveFunc(index, moveX) {
+				// 原始位置向左，leftStyle为小于0；原始位置向右，leftStyle为大于0
+				// disX为相对最初位置的左右距离
+				// 大于0为向右，小于0为向左
+				const disX = moveX - this.startX;
+				const delBtnWidth = this.delBtnWidth;
+				let offsetNum = 0;
+				if(-disX >= delBtnWidth && this.extensionDetail.articleList[index].leftStyle === -delBtnWidth) {
+					return;
+				}
+				console.log(disX, this.extensionDetail.articleList[index].hiddenFlag);
+				// this.hiddenFlag为true则是从左到右，则应该将container向左移动
+				// this.hiddenFlag为false则是从右向左，则应该将container向右移动
+				if(this.extensionDetail.articleList[index].hiddenFlag) {
+					// 此时container为最右边，则应该将container向左移动
+					// disX大于0为相对原始位置的向右移动，则直接将offsetNum置为0
+					// 否则为向左移动，offsetNum为disX相反的值，判断是否超过设置的最大位置
+					if(disX == 0 || disX > 0) {
+						offsetNum = 0;
+					} else {
+						offsetNum = disX;
+						if (disX <= -delBtnWidth) {
+							//控制手指移动距离最大值为删除按钮的宽度
+							offsetNum = -delBtnWidth;
+						}
+					}
+				} else {
+					// 此时container为最左边，应该向右移动
+					// disX小于0为相对原始位置的向左移动，则直接将offsetNum置为-this.delBtnWidth
+					// 否则为相对原始位置的向右移动，此时应该将最大位置与向右位置的差值为此刻位置，判断是否为大于0
+					if(disX < 0) {
+						offsetNum = -this.delBtnWidth;
+					} else {
+						offsetNum = -this.delBtnWidth + disX;
+						if(offsetNum > 0) {
+							offsetNum = 0;
+						}
+					}
+				}
+				this.extensionDetail.articleList[index].leftStyle = offsetNum;
 			},
 			// 上传图片
 			uploadImg(type) {
@@ -262,7 +379,7 @@
 							title: '新增列表成功！',
 							duration: 2000
 						});
-						this.findExtendContent(this.cardSeqId,this.seqId,this.type);
+						this.findExtendContent(this.cardSeqId,this.seqId, 'ALL');
 					}
 				})
 			},
@@ -299,7 +416,7 @@
 					iconName: this.extensionDetail.iconName,
 					iconUrl: this.extensionDetail.iconUrl,
 					title: this.extensionDetail.title,
-					iconSort: '',
+					iconSort: this.extensionDetail.iconSort,
 					formTitle: formTitle,
 					type: 'ARTICLE',
 				}).then(res=>{
@@ -314,24 +431,16 @@
 					}
 				})
 			},
-			goSaveList() {
-				let content = this.contentList.map(res => {
-					if (res !==
-						'<div class="hs-text" style="color:#000;font-weight:normal;text-align:left;font-size:14px;">点击开始编辑文章内容</div>') {
-						return `<section>${res.replace('onclick="return false;"','')}</section>`
-					} else {
-						return ''
-					}
-				}).join('');
+			goSaveList(type) {
 				this.$api.post('/o2oVisitingCard/saveExtendContent', {
 					customerSeqId: this.customerSeqId,
 					cardSeqId: this.extensionDetail.cardSeqId,
 					seqId: this.extensionDetail.seqId,
 					iconName: this.extensionDetail.iconName,
 					iconUrl: this.extensionDetail.iconUrl,
-					title: this.extensionDetail.title,
-					content: content,
-					type: 'LIST',
+					articleLink: this.extensionDetail.articleLink,
+					iconSort: this.extensionDetail.iconSort,
+					type: type,
 				}).then(res=>{
 					if(res.code===200){
 						uni.showToast({
@@ -415,19 +524,23 @@
 		overflow: auto;
 		.extension-list {
 			padding: 0 24rpx 38rpx;
+			overflow-x: hidden;
 			.extension-list-item {
 				width: 100%;
 				height: 208rpx;
 				box-sizing: border-box;
 				border-bottom: 2px solid #dedede;
 				padding-top: 15rpx;
-				display: flex;
+				position: relative; 
 				&:last-child {
 					border-bottom: 0;
 				}
 				.extension-list-item-body {
-					flex: 1;
+					position: absolute;
+					top: 0;
+					left: 0;
 					overflow: hidden;
+					width: 100%;
 					.extension-list-item-title {
 						// width: 100%;
 						margin-top: 30rpx;
@@ -447,6 +560,21 @@
 						overflow: hidden;
 						text-overflow: ellipsis;
 						white-space: nowrap;
+					}
+				}
+				.extension-list-item-button {
+					position: absolute;
+					right: -254rpx;
+					top: 0;
+					width: 230rpx;
+					height: 193rpx;
+					line-height: 193rpx;
+					font-size: 32rpx;
+					text-align: center;
+					color: #FFFFFF;;
+					display: flex;
+					view {
+						flex: 1;
 					}
 				}
 			}

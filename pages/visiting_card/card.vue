@@ -15,8 +15,10 @@
 				</view>
 			</view>
 		</view>
-		<view class="card-detail">
-			<view class="card-detail-top"></view>
+		<view class="card-detail" :class="{down:isDown}">
+			<view class="card-detail-top">
+				<image src="/static/images/card/arrow.png" @click="isDown=!isDown" mode="aspectFill">
+			</view>
 			<view class="card-detail-body">
 				<view class="card-detail-name">
 					<view class="card-detail-name-1">
@@ -46,13 +48,12 @@
 					<span v-if="isDetail">{{cardDetail.email||''}}</span>
 					<input v-else v-model="cardDetail.email" placeholder-style="color:#999" placeholder="邮箱"/>
 				</view>
-				<view class="card-detail-item">
+				<view class="card-detail-item" @click="chooseLocation(cardDetail.address)">
 					<image src="/static/images/card/location.png" class="icon-location" mode="aspectFill">
 					<span v-if="isDetail">{{cardDetail.address||''}}</span>
 					<input v-else v-model="cardDetail.address" placeholder-style="color:#999" placeholder="地址"/>
 				</view>
 			</view>
-				{{extendList.length}}
 			<view class="card-extend">
 				<view class="card-extend-item" v-for="(item,index) in extendBgList" :key="index" @click="goExtension(extendList[index])">
 					<view class="card-extend-item-box" v-if="index < extendList.length || (index === extendList.length&&!isDetail)">
@@ -64,7 +65,7 @@
 								<view>×</view>
 							</view>
 						</view>
-						<text>{{extendList[index]?extendList[index].iconName:'栏目名称'}}</text>					
+						<text>{{extendList[index]?(extendList[index].iconName||''):'栏目名称'}}</text>					
 					</view>
 				</view>
 			</view>
@@ -83,12 +84,12 @@
 	export default {
 		data() {
 			return {
+				isDown: false, // 底部名片详情是否下滑
 				customerSeqId: this.$common.getLocalSync('customerSeqId'),
 				showUploadImg: false, //是否显示上传图片弹窗
 				api: this.$webconfig.api_url,
 				seqId: '',
 				isDetail: true, //是否时名片详情
-				isUpdateCard: false, //判断提交调的接口
 				cardDetail: {}, //名片详情
 				extendBgList: [ //扩展背景色
 					'background: linear-gradient(0deg, #439DFD 0%, #80CCFE 100%);',
@@ -104,9 +105,6 @@
 			};
 		},
 		onLoad(option) {
-			if(option.isUpdateCard){ //判断提交调的接口，是否是更新名片状态
-				this.isUpdateCard = true;
-			}
 			if(option.seqId){
 				this.seqId = option.seqId;
 				this.getByPk(option.seqId); //如果有seqId则为查看名片详情
@@ -119,11 +117,30 @@
 				this.getExtendList(this.cardDetail.seqId);
 			}
 		},
+		onShareAppMessage(res) {
+			return {
+				title: `${this.cardDetail.name} ${this.cardDetail.company}`,
+				path: '/pages/visiting_card/card?seqId='+this.seqId
+			}
+		},
 		methods:{
 			// 打电话
 			mackCall(phone) {
 				this.isDetail && uni.makePhoneCall({
 				    phoneNumber: phone
+				});
+			},
+			chooseLocation(address) {
+				this.isDetail && uni.chooseLocation({
+				    // latitude: 120,
+				    // longitude: 30,
+					keyword: address, 
+					success: function (res) {
+						console.log('位置名称：' + res.name);
+						console.log('详细地址：' + res.address);
+						console.log('纬度：' + res.latitude);
+						console.log('经度：' + res.longitude);
+					}
 				});
 			},
 			// 更新图片
@@ -238,30 +255,53 @@
 			},
 			// 跳转扩展
 			goExtension(item) {
-				if(this.isDetail){ // 名片为详情时，不跳转编辑页面
-					return;
-				}
-				if(!item){ // 如果扩展不存在就跳转新增
-					uni.navigateTo({
-						url: `/pages/visiting_card/extension?isAdd=true&cardSeqId=${this.cardDetail.seqId}`,
-					});
-				} else { // 扩展存在就跳转修改
-					uni.navigateTo({
-						url: `/pages/visiting_card/extension?cardSeqId=${this.cardDetail.seqId}&seqId=${item.seqId}&type=${item.type||'ARTICLE'}`,
-					})
+				// 统计扩展点击
+				this.$api.post('/o2oVisitingCardExtendSr/clickStatistics',{
+					cardExtendId: item.seqId,
+					cardSeqId: this.cardDetail.seqId,
+					customerSeqId: this.customerSeqId,
+					operateType: 'CLICK'
+				}).then(res => {})
+				
+				if(this.isDetail){
+					// 跳转详情
+					if(item.type==='ARTICLE' || item.type==='ALL') {
+						uni.navigateTo({
+							url: `/pages/visiting_card/extensionTemplate?cardSeqId=${this.cardDetail.seqId}&seqId=${item.seqId}&customerSeqId=${this.customerSeqId}`,
+						});
+					} else if(item.type==='LIST') {
+						uni.navigateTo({
+							url: `/pages/visiting_card/extensionList?cardSeqId=${this.cardDetail.seqId}&seqId=${item.seqId}`,
+						});
+					} else if(item.type==='LINK') {
+						if(!window){	
+							uni.showToast({
+								icon: 'none',
+								title: '小程序不支持访问链接跳转！',
+								duration: 2000
+							});
+						} else {
+							location.href = item.articleLink;
+						}
+					}
+				} else {
+					// 跳转编辑页面
+					if(!item){ // 如果扩展不存在就跳转新增
+						uni.navigateTo({
+							url: `/pages/visiting_card/extension?isAdd=true&cardSeqId=${this.cardDetail.seqId}`,
+						});
+					} else { // 扩展存在就跳转修改
+						uni.navigateTo({
+							url: `/pages/visiting_card/extension?cardSeqId=${this.cardDetail.seqId}&seqId=${item.seqId}&type=${item.type||'ARTICLE'}`,
+						})
+					}
 				}
 			},
 			// 新增名片
 			addCard() {
-				// 默认为新增名片
-				let url = '/o2oVisitingCard/insert';
 				if(this.isDetail){ // 名片为详情时，不能新增
 					this.isDetail = false;
 					return;
-				}
-				// 当前为更新名片
-				if(this.isUpdateCard){
-					url = '/o2oVisitingCard/update';
 				}
 				// 下面这些数据还获取不到，写死提交
 				this.cardDetail.logo = this.cardDetail.picUrl;
@@ -270,7 +310,7 @@
 				this.cardDetail.appQrCode = 'this.cardDetail.appQrCode';
 				this.cardDetail.mpQrCode = 'this.cardDetail.mpQrCode';
 				this.cardDetail.musicUrl = 'this.cardDetail.musicUrl';
-				this.$api.post(url, this.cardDetail).then(res => {
+				this.$api.post('/o2oVisitingCard/update', this.cardDetail).then(res => {
 					let data = res.data;
 					if (res.code === 200) {
 						uni.showToast({
@@ -381,14 +421,31 @@
 		background-color: rgba(0,0,0,0.65);
 		box-sizing: border-box;
 		padding: 48rpx 35rpx 23rpx;
+		transition: bottom 0.5s;
 		.card-detail-top {
 			width: 100%;
 			left: 0;
 			height: 45rpx;
 			position: absolute;
 			top: -44rpx;
+			text-align: center;
+			vertical-align: bottom;
 			background-color: rgba(0,0,0,0.65);
 			border-radius: 50% / 100% 100% 0 0;
+			image {
+				margin-top: 28rpx;
+				width: 54rpx;
+				height: 37rpx;
+				transition: transform 0.5s;
+			}
+		}
+		&.down {
+			bottom: -350rpx;
+			.card-detail-top {
+				image {
+					transform: rotate(180deg);
+				}
+			}
 		}
 		.card-detail-body {
 			height: 292rpx;
