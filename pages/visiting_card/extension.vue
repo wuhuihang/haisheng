@@ -131,11 +131,9 @@
 				this.seqId = option.seqId;
 				this.type = option.type;
 				this.isAdd = option.isAdd;
+				this.updateExtendDetail();
 			}
 			this.getIconList();
-		},
-		onShow() {
-			this.updateExtendDetail();
 		},
 		methods:{
 			getIconList() {
