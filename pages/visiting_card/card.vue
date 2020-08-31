@@ -316,7 +316,7 @@
 							title: '名片保存成功！',
 							duration: 2000
 						});
-						this.getByPk(res.seqId);
+						this.getByPk(res.data.seqId);
 						this.isDetail = true;
 					}
 				})
