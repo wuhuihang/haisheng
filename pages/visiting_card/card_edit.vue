@@ -255,7 +255,7 @@
 				this.showEdit = val !== -1
 			},
 			content(val) {
-                this.$emit('update:content1', val);
+                this.$emit('update:content1', JSON.parse(JSON.stringify(val)));
 			},
 			title1(val) {
 				this.title = val;
@@ -273,7 +273,7 @@
 			}
 		},
 		mounted () {
-			this.content = this.content1;
+			this.content = JSON.parse(JSON.stringify(this.content1));
 			this.title = this.title1;
 		},
 		methods: {

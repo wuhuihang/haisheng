@@ -48,7 +48,7 @@
 					<span v-if="isDetail">{{cardDetail.email||''}}</span>
 					<input v-else v-model="cardDetail.email" placeholder-style="color:#999" placeholder="邮箱"/>
 				</view>
-				<view class="card-detail-item" @click="chooseLocation(cardDetail.address)">
+				<view class="card-detail-item" @click="chooseLocation(cardDetail.lat,cardDetail.lon)">
 					<image src="/static/images/card/location.png" class="icon-location" mode="aspectFill">
 					<span v-if="isDetail">{{cardDetail.address||''}}</span>
 					<input v-else v-model="cardDetail.address" placeholder-style="color:#999" placeholder="地址"/>
@@ -130,18 +130,17 @@
 				    phoneNumber: phone
 				});
 			},
-			chooseLocation(address) {
-				// this.isDetail && uni.chooseLocation({
-				//     // latitude: 120,
-				//     // longitude: 30,
-				// 	keyword: address, 
-				// 	success: function (res) {
-				// 		console.log('位置名称：' + res.name);
-				// 		console.log('详细地址：' + res.address);
-				// 		console.log('纬度：' + res.latitude);
-				// 		console.log('经度：' + res.longitude);
-				// 	}
-				// });
+			chooseLocation(lat, lon) {
+				this.isDetail && uni.chooseLocation({
+				    latitude: lat,
+				    longitude: lon,
+					success: function (res) {
+						console.log('位置名称：' + res.name);
+						console.log('详细地址：' + res.address);
+						console.log('纬度：' + res.latitude);
+						console.log('经度：' + res.longitude);
+					}
+				});
 			},
 			// 更新图片
 			updatePicUrl() {
@@ -256,7 +255,7 @@
 			// 跳转扩展
 			goExtension(item) {
 				// 统计扩展点击
-				this.$api.post('/o2oVisitingCardExtendSr/clickStatistics',{
+				item && this.$api.post('/o2oVisitingCardExtendSr/clickStatistics',{
 					cardExtendId: item.seqId,
 					cardSeqId: this.cardDetail.seqId,
 					customerSeqId: this.customerSeqId,
@@ -314,12 +313,11 @@
 					let data = res.data;
 					if (res.code === 200) {
 						uni.showToast({
-							title: '名片新增成功！',
+							title: '名片保存成功！',
 							duration: 2000
 						});
-						uni.redirectTo({
-							url: "/pages/visiting_card/cardList",
-						});
+						this.getByPk(res.seqId);
+						this.isDetail = true;
 					}
 				})
 			},
@@ -337,6 +335,7 @@
 	font-family: PingFang-SC-Medium;
 	font-weight: normal;
 	font-stretch: normal;
+	overflow: hidden;
 	letter-spacing: 0rpx;
 	.card-top {
 		position: relative;
@@ -460,7 +459,8 @@
 					font-size: 49rpx;
 					line-height: 49rpx;
 					color: #5381ff;
-					input {
+					input {			
+						font-size: 47rpx;
 						width: 240rpx;
 					}
 				}
@@ -473,6 +473,7 @@
 					margin-left: 46rpx;
 					margin-top: 17rpx;
 					input {
+						font-size: 30rpx;
 						width: 200rpx;
 					}
 				}
@@ -520,7 +521,7 @@
 				input {
 					display: inline-block;
 					line-height: 23rpx;
-					width: 300rpx;
+					width: 360rpx;
 				}
 			}
 		}
