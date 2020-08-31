@@ -84,7 +84,7 @@
 	export default {
 		data() {
 			return {
-				isDown: false, // 底部名片详情是否下滑
+				isDown: true, // 底部名片详情是否下滑
 				customerSeqId: this.$common.getLocalSync('customerSeqId'),
 				showUploadImg: false, //是否显示上传图片弹窗
 				api: this.$webconfig.api_url,
@@ -274,11 +274,16 @@
 						});
 					} else if(item.type==='LINK') {
 						if(!window){	
-							uni.showToast({
-								icon: 'none',
-								title: '小程序不支持访问链接跳转！',
-								duration: 2000
-							});
+							uni.setClipboardData({
+								data: item.articleLink||'',
+								success: ()=>{
+									uni.showToast({
+										icon: 'none',
+										title: '复制链接成功，请到浏览器查看！',
+										duration: 2000
+									});
+								}
+							})
 						} else {
 							location.href = item.articleLink;
 						}
@@ -378,7 +383,7 @@
 				color: #FFFFFF;
 				border-radius: 36rpx;
 				margin-bottom: 10rpx;
-				line-height: 72rpx;
+				line-height: 80rpx;
 				text-align: center;
 				image {
 					width: 32rpx;
@@ -397,7 +402,7 @@
 				image {
 					width: 34rpx;
 					height:29rpx;
-					margin: 19rpx auto 5rpx;
+					margin: 24rpx auto 5rpx;
 				}
 				view {
 					width: 100%;
@@ -448,7 +453,8 @@
 		}
 		.card-detail-body {
 			height: 292rpx;
-			margin-bottom: 29rpx;
+			margin-bottom: 24rpx;
+			// overflow: hidden;
 			.card-detail-name {
 				height: 49rpx;
 				display: flex;
@@ -479,36 +485,43 @@
 				}
 			}
 			.card-detail-title {
-				font-size: 24rpx;
-				line-height: 23rpx;
-				height: 23rpx;
+				font-size: 28rpx;
+				line-height: 28rpx;
+				height: 28rpx;
 				color: #ffffff;
-				margin-bottom: 22rpx;
+				margin-bottom: 18rpx;
 				input {
-					line-height: 23rpx;
+					display: inline-block;
+					line-height: 28rpx;
 				}
 			}
 			.card-detail-subtitle {
-				font-size: 22rpx;
-				line-height: 22rpx;
-				height: 22rpx;
+				font-size: 25rpx;
+				line-height: 25rpx;
+				height: 25rpx;
 				color: #ffffff;
-				margin-bottom: 29rpx;
+				margin-bottom: 25rpx;
 				opacity: 0.65;
 				input {
-					line-height: 22rpx;
+					height: 25rpx;
+					line-height: 25rpx;
 				}
 			}
 			.card-detail-item {
-				font-size: 24rpx;
-				line-height: 23rpx;
-				height: 23rpx;
-				margin-bottom: 26rpx;
+				font-size: 26rpx;
+				line-height: 48rpx;
+				height: 48rpx;
+				padding: 0;
+				margin: 0;
+				// margin-bottom: 22rpx;
 				color: #ffffff;
 				image {
+					float: left;
 					width: 19rpx;
 					height: 19rpx;
+					line-height: 48rpx;
 					margin-right: 20rpx;
+					margin-top: 12rpx;
 					&.icon-email{
 						width: 18rpx;
 						height:15rpx;
@@ -519,8 +532,9 @@
 					}
 				}
 				input {
-					display: inline-block;
-					line-height: 23rpx;
+					float: left;
+					line-height: 26rpx;
+					height: 26rpx;
 					width: 360rpx;
 				}
 			}

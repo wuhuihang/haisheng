@@ -8,7 +8,7 @@
 		<view class="content">
 			<view v-for="(item,index) in content" :ref="'content'+index" :class="{'active':active===index}" :key="index" @click="selectEdit(index)">
 				<view v-if="/^<video([\s\S]*)<\/video>$/.test(item)">			
-					<image :src="cloudUrl+'/videodefault.png'" style="width: 100%;height:277rpx;" mode="aspectFill"></image>
+					<image src="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png" style="width: 100%;height:277rpx;" mode="aspectFill"></image>
 				</view>
 				<view v-html="item" v-else></view>
 			</view>
@@ -369,7 +369,7 @@
 				let position = this.active;
 				const actions = new Map([
 					[/视频链接/, () => {
-						this.content.splice(this.active + 1, 0, `<video src="${this.modalValue}"  style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="${this.cloudUrl}/videodefault.png"></video>`);
+						this.content.splice(this.active + 1, 0, `<video src="${this.modalValue}"  style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png`);
 						this.showUploadVideo = false;
 					}],
 					[/插入链接/, () => {
@@ -721,6 +721,7 @@
 			/deep/ .hs-form {
 				width: 100%;
 				position: relative;
+				margin-bottom: 50rpx;
 				.close {
 					width: 50rpx;
 					height: 50rpx;

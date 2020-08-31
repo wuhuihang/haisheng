@@ -3,7 +3,11 @@
 		<view class="title">{{extensionDetail.title}}</view>
 		<view class="content">
 			<view v-for="(item,index) in contentList" :key="index">
-				<view v-html="item"></view>
+				<!-- 如果是video在编辑操作时无需播放只显示默认图片 -->
+				<view v-if="/^<video([\s\S]*)<\/video>$/.test(item)">
+				  <video :src='item.match(/src="([\s\S]*?)"/)[1]' style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video>
+				</view>
+				<view v-html="item" v-else></view>
 			</view>
 			<view class="hs-form" v-if="extensionDetail.formTitle">
 				<!-- <view class="close" @click="hasForm=false">✖</view> -->
@@ -51,6 +55,7 @@
 					articleList: []
 				},
 				contentList: [],
+				cloudUrl:this.$webconfig.cloud_url+'/mall/img',
 			};
 		},
 		onLoad(option) {

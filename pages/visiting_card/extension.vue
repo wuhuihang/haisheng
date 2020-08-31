@@ -135,6 +135,19 @@
 			}
 			this.getIconList();
 		},
+		onShow() {
+			// 查询列表
+			this.$api.get('/o2oVisitingCard/findExtendContent', {
+				params: {
+					customerSeqId: this.customerSeqId,
+					cardSeqId: this.cardSeqId,
+					seqId: this.seqId,
+					type: this.type,
+				}
+			}).then(res => {
+				this.extensionDetail.articleList = res.data.articleList;
+			})
+		},
 		methods:{
 			getIconList() {
 				this.$api.get('/o2oIconLibrary/findPage', {
