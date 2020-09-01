@@ -467,8 +467,8 @@
 				this.isLoading = true;
 				this.$api.get('/o2oMyArticle/findGoodsList', {
 					params: {
-						// customerSeqId: this.customerSeqId,
-						customerSeqId: '9a666e88ecb04e99998242ac839cfa68',
+						customerSeqId: this.customerSeqId,
+						// customerSeqId: '9a666e88ecb04e99998242ac839cfa68',
 						pageno: this.pageno
 					}
 				}).then(res => {

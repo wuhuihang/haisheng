@@ -105,6 +105,7 @@
 			};
 		},
 		onLoad(option) {
+			console.log('option.seqId------',option.seqId);
 			if(option.seqId){
 				this.seqId = option.seqId;
 				this.getByPk(option.seqId); //如果有seqId则为查看名片详情
