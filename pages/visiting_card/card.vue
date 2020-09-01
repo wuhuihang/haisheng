@@ -220,6 +220,7 @@
 					}
 				}).then(res => {
 					this.cardDetail = res.data;
+					this.seqId = res.data.seqId;
 					this.getExtendList(this.cardDetail.seqId);
 				})
 			},
