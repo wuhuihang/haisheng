@@ -7,7 +7,9 @@
 				<view v-if="/^<video([\s\S]*)<\/video>$/.test(item)">
 				  <video :src='item.match(/src="([\s\S]*?)"/)[1]' style="border-radius:20rpx;width:100%;height:277rpx;object-fit:fill;" poster="http://bucketshop.oss-cn-hangzhou.aliyuncs.com/images/20200809/app_1596953889150c6yy.png"></video>
 				</view>
-				<view v-html="item" v-else></view>
+				<view v-else-if='/^<div class="hs-goods"/.test(item)' @click="goGood(item)" v-html="item"></view>
+				<view v-else-if='/^<a href=".*"/.test(item)' @click="goHref(item)" v-html="item"></view>
+				<view v-else v-html="item"></view>
 			</view>
 			<view class="hs-form" v-if="extensionDetail.formTitle">
 				<!-- <view class="close" @click="hasForm=false">✖</view> -->
@@ -67,6 +69,30 @@
 			}
 		},
 		methods:{
+			goGood(item) {
+				let seqId = item.match(/seqId=([^&]*)&/)[1];
+				let merchantShopId = item.match(/merchantShopId=([^"]*)"/)[1];
+				uni.navigateTo({
+					url: `/pages/goods/detail?seqId=${seqId}&merchantShopId=${merchantShopId}`
+				})
+			},
+			goHref(item) {
+				let href = item.match(/^<a href="(.*?)"/)[1];	
+				if(!window){	
+					uni.setClipboardData({
+						data: href||'',
+						success: ()=>{
+							uni.showToast({
+								icon: 'none',
+								title: '复制链接成功，请到浏览器查看！',
+								duration: 2000
+							});
+						}
+					})
+				} else {
+					location.href = href;
+				}
+			},
 			findListArticleInfo(seqId){
 				this.$api.get('/o2oVisitingCard/findListArticleInfo', {
 					params: {

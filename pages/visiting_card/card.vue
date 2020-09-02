@@ -9,15 +9,15 @@
 				<view class="card-icon"><image src="/static/images/card/music.png" mode="aspectFill"></view>
 				<view class="card-icon"><image src="/static/images/card/code.png" mode="aspectFill"></view>
 				<view class="card-icon" @click="mackCall(cardDetail.mobile)"><image src="/static/images/card/phone.png" mode="aspectFill"></view>
-				<view class="card-button" :class="{'isEdit': !isDetail}" @click="addCard">
+				<view class="card-button" :class="{'isEdit': !isDetail}" @click="addCard" v-if="customerSeqId === cardDetail.customerSeqId">
 					<image src="/static/images/card/save.png" mode="aspectFill">
 					<view>{{isDetail?'制作':'保存'}}</view>
 				</view>
 			</view>
 		</view>
-		<view class="card-detail" :class="{down:isDown}">
+		<view class="card-detail" @touchstart="touchS($event)" @touchmove="touchM($event)" @touchend="touchE($event)" :style="{bottom: bottomStyle + 'rpx'}">
 			<view class="card-detail-top">
-				<image src="/static/images/card/arrow.png" @click="isDown=!isDown" mode="aspectFill">
+				<view class="card-detail-arrow"></view>
 			</view>
 			<view class="card-detail-body">
 				<view class="card-detail-name">
@@ -84,11 +84,13 @@
 	export default {
 		data() {
 			return {
-				isDown: true, // 底部名片详情是否下滑
 				customerSeqId: this.$common.getLocalSync('customerSeqId'),
 				showUploadImg: false, //是否显示上传图片弹窗
 				api: this.$webconfig.api_url,
 				seqId: '',
+				bottomStyle: -350,
+				offsetNum: -350,
+				startY: 0,
 				isDetail: true, //是否时名片详情
 				cardDetail: {}, //名片详情
 				extendBgList: [ //扩展背景色
@@ -125,6 +127,39 @@
 			}
 		},
 		methods:{
+			// 开始移动时
+			touchS({touches}) {
+				// startX记录开始移动的位置
+				if(touches.length === 1) {
+					this.startY = touches[0].clientY;
+				}
+			},
+			touchM({touches}) {
+				if(touches.length === 1) {
+					//手指移动时水平方向位置
+					const moveY = touches[0].clientY;
+					// disY为相对最初位置的上下距离
+					// 大于0为向下，小于0为向上
+					let offsetNum = -350;
+					const disY = moveY - this.startY;
+					console.log(disY)
+					if(disY<=0) {  // 向上 
+						offsetNum = this.bottomStyle - disY
+						if(offsetNum>=0) {
+							offsetNum = 0;
+						}
+					} else { // 向下
+						offsetNum = this.bottomStyle - disY
+						if(offsetNum <= -350) {
+							offsetNum = -350;
+						}
+					}
+					this.offsetNum = offsetNum;
+				}
+			},
+			touchE() {
+				this.bottomStyle = this.offsetNum;
+			},
 			// 打电话
 			mackCall(phone) {
 				this.isDetail && uni.makePhoneCall({
@@ -242,6 +277,7 @@
 				this.$api.get('/o2oVisitingCard/deleteExtendMod', {
 					params: {
 						cardSeqId: this.cardDetail.seqId,
+						customerSeqId: this.customerSeqId,
 						extendSeqId: seqId
 					}
 				}).then(res => {
@@ -309,6 +345,7 @@
 					this.isDetail = false;
 					return;
 				}
+				this.cardDetail.customerSeqId = this.customerSeqId;
 				// 下面这些数据还获取不到，写死提交
 				this.cardDetail.logo = this.cardDetail.picUrl;
 				this.cardDetail.wxQrCode = 'this.cardDetail.wxQrCode';
@@ -421,7 +458,6 @@
 	}
 	.card-detail {
 		position: absolute;
-		bottom: 0;
 		width: 100%;
 		height: 738rpx;
 		background-color: rgba(0,0,0,0.65);
@@ -438,19 +474,15 @@
 			vertical-align: bottom;
 			background-color: rgba(0,0,0,0.65);
 			border-radius: 50% / 100% 100% 0 0;
-			image {
+			.card-detail-arrow {
+				display: inline-block;
+				transform: rotate(45deg);
 				margin-top: 28rpx;
-				width: 54rpx;
-				height: 37rpx;
-				transition: transform 0.5s;
-			}
-		}
-		&.down {
-			bottom: -350rpx;
-			.card-detail-top {
-				image {
-					transform: rotate(180deg);
-				}
+				width: 20rpx;
+				height: 20rpx;
+				border-top: 8rpx solid #fff;
+				border-left: 8rpx solid #fff;
+			    animation: showhide 2s infinite;
 			}
 		}
 		.card-detail-body {
@@ -638,6 +670,17 @@
 				margin-top: 20rpx;
 			}
 		}
+	}
+}
+@keyframes showhide {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
 	}
 }
 </style>
