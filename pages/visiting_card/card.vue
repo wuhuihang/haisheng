@@ -48,10 +48,9 @@
 					<span v-if="isDetail">{{cardDetail.email||''}}</span>
 					<input v-else v-model="cardDetail.email" placeholder-style="color:#999" placeholder="邮箱"/>
 				</view>
-				<view class="card-detail-item" @click="chooseLocation(cardDetail.lat,cardDetail.lon)">
+				<view class="card-detail-item" @click="openMap">
 					<image src="/static/images/card/location.png" class="icon-location" mode="aspectFill">
-					<span v-if="isDetail">{{cardDetail.address||''}}</span>
-					<input v-else v-model="cardDetail.address" placeholder-style="color:#999" placeholder="地址"/>
+					<span>{{cardDetail.address||''}}</span>
 				</view>
 			</view>
 			<view class="card-extend">
@@ -142,7 +141,6 @@
 					// 大于0为向下，小于0为向上
 					let offsetNum = -350;
 					const disY = moveY - this.startY;
-					console.log(disY)
 					if(disY<=0) {  // 向上 
 						offsetNum = this.bottomStyle - disY
 						if(offsetNum>=0) {
@@ -166,17 +164,43 @@
 				    phoneNumber: phone
 				});
 			},
-			chooseLocation(lat, lon) {
-				this.isDetail && uni.chooseLocation({
-				    latitude: lat,
-				    longitude: lon,
-					success: function (res) {
-						console.log('位置名称：' + res.name);
-						console.log('详细地址：' + res.address);
-						console.log('纬度：' + res.latitude);
-						console.log('经度：' + res.longitude);
+			// 打开位置
+			openMap() {
+				if(!this.isDetail){
+					this.chooseLocation()
+					return
+					};
+				let lat=this.cardDetail.lat;
+				let lon=this.cardDetail.lon;
+				let name=this.cardDetail.address;
+				// 如果没有坐标，默认到天安门
+				if(!lon||!lat||lon==null||lat==null){
+					lon=116.397486;
+					lat=39.908790;
+					name='天安门'
+				}
+				uni.openLocation({
+					latitude: lat,
+					longitude: lon,
+					name:name,
+					success: function() {
+					},
+					fail:function(endErr) {
+						console.log(endErr);
 					}
 				});
+			},
+			// 调转到地图
+			chooseLocation() {
+				uni.chooseLocation({
+					latitude: this.cardDetail.lat,
+					longitude: this.cardDetail.lon,
+					success: (res) => {
+						this.cardDetail.address = res.address+res.name
+						this.cardDetail.lon = res.longitude
+						this.cardDetail.lat = res.latitude;
+					}
+				})
 			},
 			// 更新图片
 			updatePicUrl() {
@@ -191,14 +215,6 @@
 						['album', 'camera'][type]
 					], //从相册选择
 					success: image => {
-						if (image.tempFiles[0].size > 2 * 1024 * 1024) {
-							uni.showToast({
-								icon: 'none',
-								title: '照片大小不能超过2M！',
-								duration: 2000
-							});
-							return;
-						}
 						uni.showLoading({
 							title: '加载中'
 						});
@@ -216,12 +232,6 @@
 										duration: 2000
 									});
 									this.cardDetail.picUrl = res.data.viewUrl;
-								} else {
-									uni.showToast({
-										icon: 'none',
-										title: '图片上传失败',
-										duration: 2000
-									});
 								}
 							},
 							fail: () => {
@@ -486,7 +496,6 @@
 			}
 		}
 		.card-detail-body {
-			height: 292rpx;
 			margin-bottom: 24rpx;
 			// overflow: hidden;
 			.card-detail-name {
@@ -543,12 +552,11 @@
 			}
 			.card-detail-item {
 				font-size: 26rpx;
-				line-height: 48rpx;
-				height: 48rpx;
 				padding: 0;
 				margin: 0;
 				// margin-bottom: 22rpx;
 				color: #ffffff;
+				display: flex;
 				image {
 					float: left;
 					width: 19rpx;

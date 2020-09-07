@@ -39,6 +39,8 @@
 				api: this.$webconfig.api_url,
 				customerSeqId: this.$common.getLocalSync('customerSeqId'),
 				cardUserId: '',
+				seqId: '',
+				cardSeqId: '',
 				apply:{
 					name: '',
 					mobile: '',
@@ -63,8 +65,11 @@
 		onLoad(option) {
 			this.cardUserId = option.customerSeqId;
 			if(option.from === 'list'){
+				this.seqId = option.seqId;
 				this.findListArticleInfo(option.seqId);
 			} else {
+				this.seqId = option.seqId;
+				this.cardSeqId = option.cardSeqId;
 				this.findExtendContent(option.cardSeqId,option.seqId, 'ARTICLE');
 			}
 		},
@@ -142,8 +147,8 @@
 			},
 			applyForm() {
 				this.$api.post('/o2oVisitingCardApply/insert', {
-					cardExtendId: this.extensionDetail.seqId,
-					cardSeqId: this.extensionDetail.cardSeqId,
+					cardExtendId: this.seqId,
+					cardSeqId: this.cardSeqId,
 					cardUserId: this.cardUserId,
 					customerSeqId: this.customerSeqId,
 					formTitle: this.extensionDetail.formTitle,
