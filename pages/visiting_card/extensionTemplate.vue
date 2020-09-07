@@ -147,8 +147,8 @@
 			},
 			applyForm() {
 				this.$api.post('/o2oVisitingCardApply/insert', {
-					cardExtendId: this.seqId,
-					cardSeqId: this.cardSeqId,
+					cardExtendId: this.extensionDetail.seqId,
+					cardSeqId: this.extensionDetail.cardSeqId,
 					cardUserId: this.cardUserId,
 					customerSeqId: this.customerSeqId,
 					formTitle: this.extensionDetail.formTitle,

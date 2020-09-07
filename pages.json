@@ -22,6 +22,7 @@
         ,{
             "path" : "pages/visiting_card/card",
             "style" : {
+				"disableScroll": true,
 				"navigationBarTitleText": "电子名片详情"
 			}
         },
