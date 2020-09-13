@@ -142,7 +142,7 @@
 					customerSeqId: this.customerSeqId,
 					cardSeqId: this.cardSeqId,
 					seqId: this.seqId,
-					type: this.type||'ALL',
+					type: 'ALL',
 				}
 			}).then(res => {
 				this.extensionDetail.articleList = res.data.articleList;

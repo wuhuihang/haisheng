@@ -9,6 +9,9 @@
 				</view>
 				<view v-else-if='/^<div class="hs-goods"/.test(item)' @click="goGood(item)" v-html="item"></view>
 				<view v-else-if='/^<a href=".*"/.test(item)' @click="goHref(item)" v-html="item"></view>
+				<view v-else-if='/^<div class="hs-text"/.test(item)'>
+					<text selectable='true'>{{ getText(item) }}</text>
+				</view>
 				<view v-else v-html="item"></view>
 			</view>
 			<view class="hs-form" v-if="extensionDetail.formTitle">
@@ -119,6 +122,9 @@
 					});
 					this.extensionDetail = res.data;
 				})
+			},
+			getText(item) {
+				return item && item.replace(/^<div class="hs-text".+?>/g, "").replace(/<\/div>$/g, "").replace(/<br\/>/g, '\n');
 			},
 			findExtendContent(cardSeqId,seqId,type){
 				this.$api.get('/o2oVisitingCard/findExtendContent', {
